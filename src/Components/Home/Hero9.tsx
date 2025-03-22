@@ -22,7 +22,12 @@ const Hero9 = () => {
               </p>
               <Link
                 href="/#"
-                className="inline-flex items-center justify-center py-3 text-base font-medium text-center transition bg-white rounded-md px-7 text-dark shadow-1 hover:bg-gray-2 hover:text-body-color"
+                className="inline-flex items-center 
+                justify-center py-3 text-base font-medium text-center
+                 transition bg-white rounded-md px-7 text-dark shadow-1
+                 
+                  hover:bg-primary hover:text-white"
+
               >
                 Discover More
               </Link>
