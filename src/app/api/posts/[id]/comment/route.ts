@@ -2,47 +2,65 @@ import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import * as cookie from "cookie";
 import { verifyToken } from "../../../../../../utils/auth";
+import { io } from '../../../../../../server.js';
 
 const prisma = new PrismaClient();
 
 export async function POST(req: Request, context: { params: { id: string } }) {
   try {
-    console.log("✅ API Called for Adding Comment!");
-
-    // استخراج postId من الـ params
-    const { id: postId } = context.params;
-    if (!postId) {
-      console.error("❌ postId is missing from params!");
-      return NextResponse.json({ error: "Post ID is required" }, { status: 400 });
+    const { id } = await context.params; // ✅ استخدم await
+    console.log("🔍 Extracted Post ID:", id);
+  
+    if (!id) {
+      console.error("❌ Post ID is missing from params!");
+      return new Response("Post ID is required.", { status: 400 });
     }
-
-    // استخراج التوكين من الكوكيز
     const cookies = req.headers.get("cookie");
+    console.log("🔍 Cookies Received:", cookies);
+
     const parsedCookies = cookies ? cookie.parse(cookies) : {};
-    const token = parsedCookies.token;
+    const token: string | undefined = parsedCookies.token;
 
     if (!token) {
       console.error("❌ Token is missing!");
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized - No Token" }, { status: 401 });
     }
 
-    // التحقق من المستخدم
     const user = verifyToken(token);
-    if (!user) {
-      console.error("❌ Invalid Token!");
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    console.log("🔍 Verified User:", user);
+
+    if (!user || !user.id) {
+      console.error("❌ Invalid Token!", user);
+      return NextResponse.json({ error: "Unauthorized - Invalid Token" }, { status: 401 });
     }
 
-    // استخراج محتوى الكومنت من الطلب
-    const { content } = await req.json();
-    if (!content || content.trim() === "") {
+    const body = await req.json();
+    if (!body.content || body.content.trim() === "") {
       return NextResponse.json({ error: "Comment content is required" }, { status: 400 });
     }
 
-    // إضافة الكومنت
     const newComment = await prisma.comment.create({
-      data: { userId: user.id, postId, content },
+      data: {
+        userId: user.id,
+        postId: id,
+        content: body.content,
+      },
     });
+
+    console.log("✅ Comment Added Successfully:", newComment);
+
+    // ✅ إرسال إشعار عبر WebSocket
+    if (io) {
+      io.emit("commentNotification", {
+        message: `💬 مستخدم جديد علق على منشورك!`,
+        comment: newComment,
+      });
+      console.log(`📢 إشعار جديد: تعليق على المنشور ${id}`);
+    } else {
+      console.warn("⚠️ WebSocket غير مهيأ! تأكد من تشغيل \`server.ts\`.");
+    }
+
+
 
     return NextResponse.json({ message: "Comment added successfully", comment: newComment });
   } catch (error) {

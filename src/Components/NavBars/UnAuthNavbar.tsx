@@ -2,7 +2,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-
+import Logo from '../../../public/logo.png'
 const Links = [
   { id: 1, name: "Home", href: "/" },
   { id: 2, name: "About", href: "/about" },
@@ -16,19 +16,21 @@ const Navbar = () => {
     <header className="absolute top-0 left-0 z-50 w-full shadow-lg p-3">
       <div className="container mx-auto w-full">
         <div className="relative flex items-center justify-between px-5 w-full">
-          <div className="w-1/3 flex justify-end px-4">
-            <Link href="/">
+          <div className="w-[10%] flex justify-end px-4">
+            <Link href="/" className="flex items-center">
               <Image
-                src="https://cdn.tailgrids.com/2.0/image/assets/images/logo/logo-white.svg"
+                src={Logo}
                 alt="logo"
-                width={150}
+                width={70}
                 height={50}
                 priority
-              />
+                objectFit="cover"
+              /> <span className="text-white font-bold">
+                Spot
+              </span>
             </Link>
           </div>
-
-          <nav className="hidden lg:flex w-1/3 justify-center">
+          <nav className="hidden lg:flex w-[50%] justify-center">
             <ul className="flex space-x-8">
               {Links.map((link) => (
                 <li key={link.id}>
@@ -43,7 +45,7 @@ const Navbar = () => {
             </ul>
           </nav>
 
-          <div className="w-1/3 hidden justify-start space-x-4  lg:flex">
+          <div className="w-[20%] hidden justify-start space-x-4  lg:flex">
             <button className="btn btn-soft">Sign in</button>
             <button className="btn btn-neutral">Get Started</button>
           </div>
@@ -51,11 +53,13 @@ const Navbar = () => {
           {/* زر الهامبرجر لفتح القائمة في الموبايل */}
           <button
             onClick={() => setOpen(!open)}
-            className="lg:hidden absolute right-4 top-1/2 -translate-y-1/2 px-3 py-2 rounded-lg"
+            className="lg:hidden absolute right-4 top-1/2 -translate-y-1/2 px-3 py-2 rounded-lg
+            cursor-pointer text-white
+            "
           >
-            <span className="block h-[2px] w-[30px] bg-black my-[6px]"></span>
-            <span className="block h-[2px] w-[30px] bg-black my-[6px]"></span>
-            <span className="block h-[2px] w-[30px] bg-black my-[6px]"></span>
+            <span className="block h-[2px] w-[30px] bg-white my-[6px]"></span>
+            <span className="block h-[2px] w-[30px] bg-white my-[6px]"></span>
+            <span className="block h-[2px] w-[30px] bg-white my-[6px]"></span>
           </button>
 
           {/* القائمة الجانبية في الموبايل */}
@@ -87,3 +91,6 @@ const Navbar = () => {
 };
 
 export default Navbar;
+
+
+
