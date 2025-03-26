@@ -6,9 +6,12 @@ import { io } from "../../../../../../server.js";
 
 const prisma = new PrismaClient();
 
-export async function POST(req: Request, { params }: { params: { id: string } }) {
+export async function POST(req: Request) {
   try {
-    const { id } = params; // استخراج الـ ID من الـ params مباشرة
+    // استخراج ID البوست من الـ URL
+    const url = new URL(req.url);
+    const pathParts = url.pathname.split("/");
+    const id = pathParts[pathParts.length - 2]; // استخراج id بشكل صحيح
 
     console.log("🔍 Extracted Post ID:", id);
 
@@ -17,6 +20,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
       return NextResponse.json({ error: "Post ID is required." }, { status: 400 });
     }
 
+    // استخراج التوكن من الكوكيز
     const cookies = req.headers.get("cookie");
     console.log("🔍 Cookies Received:", cookies);
 
@@ -28,6 +32,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
       return NextResponse.json({ error: "Unauthorized - No Token" }, { status: 401 });
     }
 
+    // التحقق من التوكن
     const user = verifyToken(token);
     console.log("🔍 Verified User:", user);
 
@@ -36,11 +41,13 @@ export async function POST(req: Request, { params }: { params: { id: string } })
       return NextResponse.json({ error: "Unauthorized - Invalid Token" }, { status: 401 });
     }
 
+    // استخراج البيانات من الـ body
     const body = await req.json();
     if (!body.content || body.content.trim() === "") {
       return NextResponse.json({ error: "Comment content is required" }, { status: 400 });
     }
 
+    // إنشاء التعليق الجديد
     const newComment = await prisma.comment.create({
       data: {
         userId: user.id,
@@ -51,6 +58,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
 
     console.log("✅ Comment Added Successfully:", newComment);
 
+    // إرسال إشعار عبر WebSocket
     if (io) {
       io.emit("commentNotification", {
         message: `💬 مستخدم جديد علق على منشورك!`,
