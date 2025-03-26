@@ -6,12 +6,14 @@ import { io } from "../../../../../../server.js";
 
 const prisma = new PrismaClient();
 
+export const dynamic = 'force-dynamic'; // إضافة هذه السطر لحل مشاكل التخزين المؤقت
+
 export async function POST(req: Request) {
   try {
     // استخراج ID البوست من الـ URL
     const url = new URL(req.url);
     const pathParts = url.pathname.split("/");
-    const id = pathParts[pathParts.length - 2]; // استخراج id بشكل صحيح
+    const id = pathParts[pathParts.length - 2];
 
     console.log("🔍 Extracted Post ID:", id);
 
