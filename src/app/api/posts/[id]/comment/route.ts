@@ -6,14 +6,9 @@ import { io } from "../../../../../../server.js";
 
 const prisma = new PrismaClient();
 
-export const dynamic = 'force-dynamic'; // إضافة هذه السطر لحل مشاكل التخزين المؤقت
-
-export async function POST(req: Request) {
+export async function POST(req: Request, context: { params: { id: string } }) {
   try {
-    // استخراج ID البوست من الـ URL
-    const url = new URL(req.url);
-    const pathParts = url.pathname.split("/");
-    const id = pathParts[pathParts.length - 2];
+    const { id } = context.params; // ❌ لا تحتاج await هنا
 
     console.log("🔍 Extracted Post ID:", id);
 
@@ -22,7 +17,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Post ID is required." }, { status: 400 });
     }
 
-    // استخراج التوكن من الكوكيز
     const cookies = req.headers.get("cookie");
     console.log("🔍 Cookies Received:", cookies);
 
@@ -34,7 +28,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized - No Token" }, { status: 401 });
     }
 
-    // التحقق من التوكن
     const user = verifyToken(token);
     console.log("🔍 Verified User:", user);
 
@@ -43,13 +36,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized - Invalid Token" }, { status: 401 });
     }
 
-    // استخراج البيانات من الـ body
     const body = await req.json();
     if (!body.content || body.content.trim() === "") {
       return NextResponse.json({ error: "Comment content is required" }, { status: 400 });
     }
 
-    // إنشاء التعليق الجديد
     const newComment = await prisma.comment.create({
       data: {
         userId: user.id,
@@ -60,7 +51,7 @@ export async function POST(req: Request) {
 
     console.log("✅ Comment Added Successfully:", newComment);
 
-    // إرسال إشعار عبر WebSocket
+    // ✅ إرسال إشعار عبر WebSocket
     if (io) {
       io.emit("commentNotification", {
         message: `💬 مستخدم جديد علق على منشورك!`,
