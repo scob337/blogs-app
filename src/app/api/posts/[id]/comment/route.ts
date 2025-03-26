@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Comment } from "@prisma/client";
 import * as cookie from "cookie";
 import { verifyToken } from "../../../../../../utils/auth";
 import { io } from "../../../../../../server";
@@ -7,10 +7,19 @@ import { ObjectId } from "mongodb";
 
 const prisma = new PrismaClient();
 
-export async function POST(req: Request, { params }: { params: { id: string } }) {
-  try {
-    const id = params.id;
+interface User {
+  id: string;
+  email?: string;
+  name?: string;
+}
 
+interface CommentRequestBody {
+  content: string;
+}
+
+export async function POST(req: Request, context: { params: { id: string } }) {
+  const { id } = await context.params;
+  try {
     console.log("🔍 Extracted Post ID:", id);
 
     if (!id || !ObjectId.isValid(id)) {
@@ -29,7 +38,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
       return NextResponse.json({ error: "Unauthorized - No Token" }, { status: 401 });
     }
 
-    const user = verifyToken(token);
+    const user: User | null = verifyToken(token);
     console.log("🔍 Verified User:", user);
 
     if (!user || !user.id) {
@@ -37,32 +46,32 @@ export async function POST(req: Request, { params }: { params: { id: string } })
       return NextResponse.json({ error: "Unauthorized - Invalid Token" }, { status: 401 });
     }
 
-    const body = await req.json();
+    const body: CommentRequestBody = await req.json();
     if (!body.content || body.content.trim() === "") {
       return NextResponse.json({ error: "Comment content is required" }, { status: 400 });
     }
 
-    // ✅ تأكد أن postId يتم تمريره كـ String
-    const newComment = await prisma.comment.create({
+    // ✅ Ensure postId is passed as a string
+    const newComment: Comment = await prisma.comment.create({
       data: {
         id: new ObjectId().toString(), // Generate a unique ID for the comment
-        userId: user.id, // تأكد أن user.id هو String
-        postId: id.toString(), // تحويل ObjectId إلى String
+        userId: user.id, // Ensure user.id is a string
+        postId: id.toString(), // Convert ObjectId to string
         content: body.content.trim(),
       },
     });
 
     console.log("✅ Comment Added Successfully:", newComment);
 
-    // ✅ إرسال إشعار عبر WebSocket
+    // ✅ Send notification via WebSocket
     try {
       io?.emit("commentNotification", {
-        message: `💬 مستخدم جديد علق على منشورك!`,
+        message: `💬 A new user commented on your post!`,
         comment: newComment,
       });
-      console.log(`📢 إشعار جديد: تعليق على المنشور ${id}`);
+      console.log(`📢 New Notification: Comment on post ${id}`);
     } catch (wsError) {
-      console.warn(`⚠️ WebSocket غير مهيأ! تأكد من تشغيل \`server.ts\`.`, wsError);
+      console.warn(`⚠️ WebSocket not initialized! Ensure \`server.ts\` is running.`, wsError);
     }
 
     return NextResponse.json({ message: "Comment added successfully", comment: newComment });
