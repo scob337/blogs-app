@@ -2,19 +2,21 @@ import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import * as cookie from "cookie";
 import { verifyToken } from "../../../../../../utils/auth";
-import { io } from '../../../../../../server.js';
+import { io } from "../../../../../../server.js";
 
 const prisma = new PrismaClient();
 
-export async function POST(req: Request, context: { params: { id: string } }) {
+export async function POST(req: Request, { params }: { params: { id: string } }) {
   try {
-    const { id } = await context.params; // ✅ استخدم await
+    const { id } = params; // استخراج الـ ID من الـ params مباشرة
+
     console.log("🔍 Extracted Post ID:", id);
-  
+
     if (!id) {
       console.error("❌ Post ID is missing from params!");
-      return new Response("Post ID is required.", { status: 400 });
+      return NextResponse.json({ error: "Post ID is required." }, { status: 400 });
     }
+
     const cookies = req.headers.get("cookie");
     console.log("🔍 Cookies Received:", cookies);
 
@@ -49,7 +51,6 @@ export async function POST(req: Request, context: { params: { id: string } }) {
 
     console.log("✅ Comment Added Successfully:", newComment);
 
-    // ✅ إرسال إشعار عبر WebSocket
     if (io) {
       io.emit("commentNotification", {
         message: `💬 مستخدم جديد علق على منشورك!`,
@@ -57,10 +58,8 @@ export async function POST(req: Request, context: { params: { id: string } }) {
       });
       console.log(`📢 إشعار جديد: تعليق على المنشور ${id}`);
     } else {
-      console.warn("⚠️ WebSocket غير مهيأ! تأكد من تشغيل \`server.ts\`.");
+      console.warn("⚠️ WebSocket غير مهيأ! تأكد من تشغيل `server.ts`.");
     }
-
-
 
     return NextResponse.json({ message: "Comment added successfully", comment: newComment });
   } catch (error) {
