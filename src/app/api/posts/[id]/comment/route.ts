@@ -7,10 +7,10 @@ import { ObjectId } from "mongodb";
 
 const prisma = new PrismaClient();
 
-export async function POST(req: Request, context: { params: { id: string } }) {
+export async function POST(req: Request, { params }: { params: { id: string } }) {
   try {
-    const id = await context.params?.id;
-    
+    const id = params.id;
+
     console.log("🔍 Extracted Post ID:", id);
 
     if (!id || !ObjectId.isValid(id)) {

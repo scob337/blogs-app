@@ -18,7 +18,7 @@ if (!global._io) {
   });
 
   httpServer.listen(3002, () => {
-    console.log("🚀 WebSocket Server running on port 3001");
+    console.log("🚀 WebSocket Server running on port 3002");
   });
 }
 
