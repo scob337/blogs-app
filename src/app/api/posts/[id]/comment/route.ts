@@ -2,19 +2,20 @@ import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import * as cookie from "cookie";
 import { verifyToken } from "../../../../../../utils/auth";
-import { io } from "../../../../../../server.js";
+import { io } from "../../../../../../server";
+import { ObjectId } from "mongodb";
 
 const prisma = new PrismaClient();
 
 export async function POST(req: Request, context: { params: { id: string } }) {
   try {
-    const { id } = context.params; // ❌ لا تحتاج await هنا
-
+    const id = await context.params?.id;
+    
     console.log("🔍 Extracted Post ID:", id);
 
-    if (!id) {
-      console.error("❌ Post ID is missing from params!");
-      return NextResponse.json({ error: "Post ID is required." }, { status: 400 });
+    if (!id || !ObjectId.isValid(id)) {
+      console.error("❌ Invalid Post ID!");
+      return NextResponse.json({ error: "Invalid Post ID" }, { status: 400 });
     }
 
     const cookies = req.headers.get("cookie");
@@ -41,25 +42,27 @@ export async function POST(req: Request, context: { params: { id: string } }) {
       return NextResponse.json({ error: "Comment content is required" }, { status: 400 });
     }
 
+    // ✅ تأكد أن postId يتم تمريره كـ String
     const newComment = await prisma.comment.create({
       data: {
-        userId: user.id,
-        postId: id,
-        content: body.content,
+        id: new ObjectId().toString(), // Generate a unique ID for the comment
+        userId: user.id, // تأكد أن user.id هو String
+        postId: id.toString(), // تحويل ObjectId إلى String
+        content: body.content.trim(),
       },
     });
 
     console.log("✅ Comment Added Successfully:", newComment);
 
     // ✅ إرسال إشعار عبر WebSocket
-    if (io) {
-      io.emit("commentNotification", {
+    try {
+      io?.emit("commentNotification", {
         message: `💬 مستخدم جديد علق على منشورك!`,
         comment: newComment,
       });
       console.log(`📢 إشعار جديد: تعليق على المنشور ${id}`);
-    } else {
-      console.warn("⚠️ WebSocket غير مهيأ! تأكد من تشغيل `server.ts`.");
+    } catch (wsError) {
+      console.warn(`⚠️ WebSocket غير مهيأ! تأكد من تشغيل \`server.ts\`.`, wsError);
     }
 
     return NextResponse.json({ message: "Comment added successfully", comment: newComment });
