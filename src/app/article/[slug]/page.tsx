@@ -1,16 +1,17 @@
 import { notFound } from "next/navigation";
 
-interface Props {
-  params: { slug: string };
-}
+type Params = Promise<{ slug: string }>;
 
-const articles = [
-  { slug: "article-1", title: "مقالة 1", content: "تفاصيل المقالة الأولى..." },
-  { slug: "article-2", title: "مقالة 2", content: "تفاصيل المقالة الثانية..." },
-];
+export default async function ArticlePage(props: { params: Params }) {
+  const params = await props.params;
+  const slug = params.slug;
 
-const ArticlePage = ({ params }: Props) => {
-  const article = articles.find((a) => a.slug === params.slug);
+  const articles = [
+    { slug: "article-1", title: "مقالة 1", content: "تفاصيل المقالة الأولى..." },
+    { slug: "article-2", title: "مقالة 2", content: "تفاصيل المقالة الثانية..." },
+  ];
+
+  const article = articles.find((a) => a.slug === slug);
 
   if (!article) return notFound();
 
@@ -20,6 +21,4 @@ const ArticlePage = ({ params }: Props) => {
       <p className="mt-4">{article.content}</p>
     </main>
   );
-};
-
-export default ArticlePage;
+}
