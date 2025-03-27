@@ -1,5 +1,5 @@
-import { io } from "socket.io-client";
+// import { io } from "socket.io-client";
 
-export function getSocket() {
-  return io;
-}
+// export function getSocket() {
+//   return io;
+// }
