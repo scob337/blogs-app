@@ -62,41 +62,26 @@ export async function PUT(
   }
 }
 
-export async function DELETE(  req: NextRequest,
-  { params }: { params: { id: string } } // ✅ إزالة Promise
-): Promise<NextResponse> {
+// ✅ حذف مقال
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+ ): Promise<NextResponse> {
   try {
-    console.log("🗑️ Deleting post:", params.id);
-
     const token = req.cookies.get("token")?.value;
-    if (!token) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const decoded = verifyToken(token);
-    if (!decoded || !decoded.id) {
-      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
-    }
+    if (!decoded) return NextResponse.json({ error: "Invalid token" }, { status: 401 });
 
-    // ✅ التحقق مما إذا كان الـ id صحيحًا
-    const postId = params.id;
-    if (!postId) {
-      return NextResponse.json({ error: "Post ID is required" }, { status: 400 });
-    }
-
-    const existingPost = await prisma.post.findUnique({
-      where: { id: postId },
-    });
-
-    if (!existingPost) {
-      return NextResponse.json({ error: "Post not found" }, { status: 404 });
-    }
-
+    const { id } = await params;
+    const existingPost = await prisma.post.findUnique({ where: { id } });
+    if (!existingPost) return NextResponse.json({ error: "Post not found" }, { status: 404 });
     if (existingPost.authorId !== decoded.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
-    await prisma.post.delete({ where: { id: postId } });
+    await prisma.post.delete({ where: { id } });
 
     return NextResponse.json({ message: "Post deleted successfully" });
   } catch (error) {
