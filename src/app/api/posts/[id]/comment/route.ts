@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server";
-import { PrismaClient, Comment } from "@prisma/client";
+import { NextRequest, NextResponse } from "next/server";
+import { PrismaClient } from "@prisma/client";
 import * as cookie from "cookie";
 import { verifyToken } from "../../../../../../utils/auth";
 import { io } from "../../../../../../server";
@@ -17,17 +17,21 @@ interface CommentRequestBody {
   content: string;
 }
 
-export async function POST(req: Request, context: { params: { id: string } }) {
-  const { id } = await context.params;
-  try {
-    console.log("🔍 Extracted Post ID:", id);
+export async function POST(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+): Promise<NextResponse> {
+  const { id: postId } = params;
 
-    if (!id || !ObjectId.isValid(id)) {
+  try {
+    console.log("🔍 Extracted Post ID:", postId);
+
+    if (!postId || !ObjectId.isValid(postId)) {
       console.error("❌ Invalid Post ID!");
       return NextResponse.json({ error: "Invalid Post ID" }, { status: 400 });
     }
 
-    const cookies = req.headers.get("cookie");
+    const cookies = request.headers.get("cookie");
     console.log("🔍 Cookies Received:", cookies);
 
     const parsedCookies = cookies ? cookie.parse(cookies) : {};
@@ -46,35 +50,42 @@ export async function POST(req: Request, context: { params: { id: string } }) {
       return NextResponse.json({ error: "Unauthorized - Invalid Token" }, { status: 401 });
     }
 
-    const body: CommentRequestBody = await req.json();
+    const body: CommentRequestBody = await request.json();
     if (!body.content || body.content.trim() === "") {
-      return NextResponse.json({ error: "Comment content is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Comment content is required" },
+        { status: 400 }
+      );
     }
 
-    // ✅ Ensure postId is passed as a string
-    const newComment: Comment = await prisma.comment.create({
+    const newComment = await prisma.comment.create({
       data: {
-        id: new ObjectId().toString(), // Generate a unique ID for the comment
-        userId: user.id, // Ensure user.id is a string
-        postId: id.toString(), // Convert ObjectId to string
+        id: new ObjectId(),
+        userId: user.id,
+        postId,
         content: body.content.trim(),
       },
     });
 
     console.log("✅ Comment Added Successfully:", newComment);
 
-    // ✅ Send notification via WebSocket
     try {
       io?.emit("commentNotification", {
         message: `💬 A new user commented on your post!`,
         comment: newComment,
       });
-      console.log(`📢 New Notification: Comment on post ${id}`);
+      console.log(`📢 New Notification: Comment on post ${postId}`);
     } catch (wsError) {
-      console.warn(`⚠️ WebSocket not initialized! Ensure \`server.ts\` is running.`, wsError);
+      console.warn(
+        `⚠️ WebSocket not initialized! Ensure \`server.ts\` is running.`,
+        wsError
+      );
     }
 
-    return NextResponse.json({ message: "Comment added successfully", comment: newComment });
+    return NextResponse.json({
+      message: "Comment added successfully",
+      comment: newComment,
+    });
   } catch (error) {
     console.error("❌ Error adding comment:", error);
     return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
