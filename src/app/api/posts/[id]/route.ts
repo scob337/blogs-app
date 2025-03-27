@@ -27,7 +27,10 @@ export async function GET(
 }
 
 // ✅ تعديل مقال
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+ ): Promise<NextResponse> {
   try {
     // 📌 استخراج التوكن من الكوكيز
     const token = req.cookies.get("token")?.value;
@@ -38,7 +41,8 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     if (!decoded) return NextResponse.json({ error: "Invalid token" }, { status: 401 });
 
     // 📌 جلب المقال والتأكد أنه يخص المستخدم
-    const existingPost = await prisma.post.findUnique({ where: { id: params.id } });
+    const { id } = await params;
+    const existingPost = await prisma.post.findUnique({ where: { id } });
     if (!existingPost) return NextResponse.json({ error: "Post not found" }, { status: 404 });
     if (existingPost.authorId !== decoded.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
@@ -47,7 +51,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     // 📌 تحديث المقال
     const { title, content } = await req.json();
     const updatedPost = await prisma.post.update({
-      where: { id: params.id },
+      where: { id },
       data: { title, content },
     });
 
