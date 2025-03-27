@@ -62,22 +62,41 @@ export async function PUT(
   }
 }
 
-// ✅ حذف مقال
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(  req: NextRequest,
+  { params }: { params: { id: string } } // ✅ إزالة Promise
+): Promise<NextResponse> {
   try {
+    console.log("🗑️ Deleting post:", params.id);
+
     const token = req.cookies.get("token")?.value;
-    if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!token) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     const decoded = verifyToken(token);
-    if (!decoded) return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    if (!decoded || !decoded.id) {
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    }
 
-    const existingPost = await prisma.post.findUnique({ where: { id: params.id } });
-    if (!existingPost) return NextResponse.json({ error: "Post not found" }, { status: 404 });
+    // ✅ التحقق مما إذا كان الـ id صحيحًا
+    const postId = params.id;
+    if (!postId) {
+      return NextResponse.json({ error: "Post ID is required" }, { status: 400 });
+    }
+
+    const existingPost = await prisma.post.findUnique({
+      where: { id: postId },
+    });
+
+    if (!existingPost) {
+      return NextResponse.json({ error: "Post not found" }, { status: 404 });
+    }
+
     if (existingPost.authorId !== decoded.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
-    await prisma.post.delete({ where: { id: params.id } });
+    await prisma.post.delete({ where: { id: postId } });
 
     return NextResponse.json({ message: "Post deleted successfully" });
   } catch (error) {
