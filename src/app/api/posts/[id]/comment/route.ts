@@ -19,9 +19,10 @@ interface CommentRequestBody {
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  const postId = params.id;
+  { params }: { params: Promise<{ id: string }> }
+ ): Promise<NextResponse> {
+
+  const { id: postId } = await params;
 
   try {
     console.log("🔍 Extracted Post ID:", postId);
