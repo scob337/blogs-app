@@ -5,10 +5,12 @@ import { verifyToken } from "../../../../utils/auth";
 const prisma = new PrismaClient();
 
 // ✅ إنشاء مقال جديد
-export async function POST(req: NextRequest) {
+export async function POST(
+  request: NextRequest
+ ): Promise<NextResponse> {
   try {
     // 📌 استخراج التوكن من الكوكيز
-    const token = req.cookies.get("token")?.value;
+    const token = request.cookies.get("token")?.value;
     if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     // 📌 التحقق من التوكن
@@ -16,7 +18,7 @@ export async function POST(req: NextRequest) {
     if (!decoded) return NextResponse.json({ error: "Invalid token" }, { status: 401 });
 
     // 📌 جلب بيانات المقال
-    const { title, content } = await req.json();
+    const { title, content } = await request.json();
     if (!title || !content) {
       return NextResponse.json({ error: "Title and content are required" }, { status: 400 });
     }
