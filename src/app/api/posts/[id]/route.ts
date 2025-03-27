@@ -5,10 +5,13 @@ import { verifyToken } from "../../../../../utils/auth";
 const prisma = new PrismaClient();
 
 // ✅ جلب مقال محدد
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+ ): Promise<NextResponse> {
   try {
     const post = await prisma.post.findUnique({
-      where: { id: params.id },
+      where: { id: (await params).id },
       include: {
         author: { select: { id: true, name: true, email: true } },
       },
