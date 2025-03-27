@@ -1,11 +1,9 @@
 import { notFound } from "next/navigation";
 
-type Params = Promise<{ slug: string }>;
+export type ParamsType = { slug: string }; // ✅ إزالة Promise من النوع
 
-export default async function ArticlePage(props: { params: Params }) {
-  const params = await props.params;
-  const slug = params.slug;
-
+export default function ArticlePage({ params }: { params: ParamsType }) {
+  const { slug } = params; // ✅ لا داعي لاستخدام await
   const articles = [
     { slug: "article-1", title: "مقالة 1", content: "تفاصيل المقالة الأولى..." },
     { slug: "article-2", title: "مقالة 2", content: "تفاصيل المقالة الثانية..." },
