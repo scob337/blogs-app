@@ -1,14 +1,17 @@
-import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
+import { NextRequest, NextResponse } from "next/server";
 
 const prisma = new PrismaClient();
 
-export async function GET(req: Request, context: { params: { id: string } }) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+): Promise<NextResponse> {
   try {
     console.log("✅ API Called for Fetching Post Details!");
 
     // استخراج postId من الـ params
-    const { id: postId } = context.params;
+    const { id: postId } = params;
     if (!postId) {
       console.error("❌ postId is missing from params!");
       return NextResponse.json({ error: "Post ID is required" }, { status: 400 });

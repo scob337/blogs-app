@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { ObjectId } from "mongodb";
 import * as cookie from "cookie";
@@ -6,13 +6,19 @@ import { verifyToken } from "../../../../../../utils/auth";
 
 const prisma = new PrismaClient();
 
-export async function POST(req: Request, context: { params: { id: string } }) {
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+ ): Promise<NextResponse> {
+
+  const { id: postId } = await params;
+
+  
   try {
     console.log("✅ API Called!");
-    console.log("🔹 Context Params:", context.params);
+    console.log("🔹 Params:", params);
 
     // استخراج postId من الـ params
-    const { id: postId } = context.params;
     if (!postId) {
       console.error("❌ postId is missing from params!");
       return NextResponse.json({ error: "Post ID is required" }, { status: 400 });
@@ -21,7 +27,7 @@ export async function POST(req: Request, context: { params: { id: string } }) {
     console.log("📌 postId received:", postId);
 
     // استخراج التوكين من الكوكيز
-    const cookies = req.headers.get("cookie");
+    const cookies = request.headers.get("cookie");
     const parsedCookies = cookies ? cookie.parse(cookies) : {};
     const token = parsedCookies.token;
 
