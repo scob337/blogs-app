@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 
 interface Props {
-  params: { slug: string };
+  params: { slug: string }; // ✅ إصلاح `params`
 }
 
 const articles = [
