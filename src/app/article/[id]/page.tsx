@@ -1,11 +1,9 @@
 import { notFound } from "next/navigation";
 
-export default function ArticlePage({
-  params,
-}: {
-  params: { id: string };
-}) {
-  const { id } = params;
+type Params = Promise<{ id: string }>;
+
+export default async function ArticlePage({ params }: { params: Params }) {    
+const { id } = await params;
 
   const articles = [
     { id: "1", title: "مقالة 1", content: "تفاصيل المقالة الأولى..." },
