@@ -5,7 +5,7 @@ import { io } from "socket.io-client";
 const socket = io(); // الاتصال بالسيرفر
 
 const Notifications = () => {
-  const [notifications, setNotifications] = useState([]);
+  const [notifications, setNotifications] = useState<string[]>([]);
 
   useEffect(() => {
     // استقبال إشعار الإعجاب
