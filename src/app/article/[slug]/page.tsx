@@ -1,9 +1,13 @@
 import { notFound } from "next/navigation";
+import { NextRequest, NextResponse } from "next/server";
 
-export type ParamsType = { slug: string }; // ✅ إزالة Promise من النوع
+export type ParamsType = { slug: string }; 
 
-export default function ArticlePage({ params }: { params: ParamsType }) {
-  const { slug } = params; // ✅ لا داعي لاستخدام await
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ slug: string }> }
+ ): Promise<NextResponse> {
+  const { slug } = await params; 
   const articles = [
     { slug: "article-1", title: "مقالة 1", content: "تفاصيل المقالة الأولى..." },
     { slug: "article-2", title: "مقالة 2", content: "تفاصيل المقالة الثانية..." },
@@ -13,10 +17,8 @@ export default function ArticlePage({ params }: { params: ParamsType }) {
 
   if (!article) return notFound();
 
-  return (
-    <main className="container mx-auto p-6">
-      <h1 className="text-3xl font-bold">{article.title}</h1>
-      <p className="mt-4">{article.content}</p>
-    </main>
-  );
+  return NextResponse.json({
+    title: article.title,
+    content: article.content,
+  });
 }
