@@ -1,9 +1,10 @@
 import { Server } from "socket.io";
+import { Server as HttpServer } from "http"; // استيراد التايب المناسب للسيرفر
 
 let io: Server | null = null;
 
 // ✅ دالة إنشاء WebSocket
-export const initializeSocket = (server: any) => {
+export const initializeSocket = (server: HttpServer): Server => {
   if (!io) {
     io = new Server(server, {
       cors: {
@@ -24,7 +25,7 @@ export const initializeSocket = (server: any) => {
 };
 
 // ✅ دالة استرجاع WebSocket
-export const getSocket = () => {
+export const getSocket = (): Server | null => {
   if (!io) {
     console.warn("⚠️ WebSocket not initialized!");
   }

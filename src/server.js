@@ -1,7 +1,10 @@
 import { Server } from "socket.io";
 import { createServer } from "http";
 
-if (!global._io) {
+const PORT = process.env.PORT || 2000;
+
+if (!global._serverStarted) {
+  global._serverStarted = true;
   const httpServer = createServer();
 
   global._io = new Server(httpServer, {
@@ -16,9 +19,9 @@ if (!global._io) {
     });
   });
 
-  httpServer.listen(3002, () => {
-    console.log("🚀 WebSocket Server running on port 3002");
-  });
+    httpServer.listen(PORT, () => {
+      console.log(`🚀 Server running on port ${PORT}`);
+    });
 }
 
 // ✅ تصدير WebSocket بحيث يكون متاحًا في باقي المشروع

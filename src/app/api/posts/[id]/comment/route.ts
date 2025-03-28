@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Prisma } from "@prisma/client";
 import * as cookie from "cookie";
 import { verifyToken } from "../../../../../../utils/auth";
-import { io } from "../../../../../../server";
-import { ObjectId } from "mongodb";
+import { io } from "../../../../../server.js";
 
 const prisma = new PrismaClient();
 
 interface User {
-  id: string;
+  id?: string;
   email?: string;
   name?: string;
 }
@@ -17,17 +16,19 @@ interface CommentRequestBody {
   content: string;
 }
 
+
+
+
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
  ): Promise<NextResponse> {
-
   const { id: postId } = await params;
 
   try {
     console.log("🔍 Extracted Post ID:", postId);
 
-    if (!postId || !ObjectId.isValid(postId)) {
+    if (!postId) {
       console.error("❌ Invalid Post ID!");
       return NextResponse.json({ error: "Invalid Post ID" }, { status: 400 });
     }
@@ -44,7 +45,6 @@ export async function POST(
     }
 
     const user: User | null = verifyToken(token);
-    console.log("🔍 Verified User:", user);
 
     if (!user || !user.id) {
       console.error("❌ Invalid Token!", user);
@@ -59,16 +59,14 @@ export async function POST(
       );
     }
 
-    const newComment = await prisma.comment.create({
-      data: {
-        id: new ObjectId(),
-        userId: user.id,
-        postId,
-        content: body.content.trim(),
-      },
-    });
+    const commentData: Prisma.CommentUncheckedCreateInput = {
+      userId: user.id,
+      postId: postId,
+      content: body.content.trim(),
+      id: undefined, // Optional: Let Prisma auto-generate the ID
+    };
 
-    console.log("✅ Comment Added Successfully:", newComment);
+    const newComment = await prisma.comment.create({ data: commentData });
 
     try {
       io?.emit("commentNotification", {
