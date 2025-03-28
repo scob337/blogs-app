@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
 import { generateToken, hashPassword } from "../../../../../utils/auth";
+import { Prisma, PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
+
 
 export async function POST(req: Request) {
   try {
@@ -14,14 +15,19 @@ export async function POST(req: Request) {
     }
 
     const hashedPassword = await hashPassword(password);
-    const user = await prisma.user.create({
-      data: { name, email, password: hashedPassword },
-    });
+
+    const userData: Prisma.UserUncheckedCreateInput = {
+      name: String(name), 
+      email: String(email),
+      password: String(hashedPassword),
+    };
+
+    const user = await prisma.user.create({ data: userData });
 
     const token = generateToken(user.id);
     return NextResponse.json({ user, token });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
   }
 }
