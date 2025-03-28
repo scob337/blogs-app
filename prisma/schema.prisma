@@ -8,7 +8,7 @@ datasource db {
 }
 
 model User {
-  id       String    @id @map("_id") @db.ObjectId
+  id       String @id @map("_id") @db.ObjectId // ✅ Prisma سيتعامل مع _id تلقائيًا
   name     String
   email    String    @unique
   password String
@@ -16,6 +16,7 @@ model User {
   likes    Like[] // ✅ علاقة عكسية مع Like
   comments Comment[] // ✅ علاقة عكسية مع Comment
 }
+
 
 model Post {
   id        String    @id @default(auto()) @map("_id") @db.ObjectId
