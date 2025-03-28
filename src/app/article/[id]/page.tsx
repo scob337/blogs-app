@@ -1,14 +1,11 @@
 import { notFound } from "next/navigation";
 
-export type ParamsType = { id: string }; 
+export default function ArticlePage({ params }: { params: { id: string } }) {
+  const { id } = params;
 
-export default function ArticlePage({ params }: { params: ParamsType }) {
-  const { id } = params; 
   const articles = [
-    // spell-checker: disable
-    { id: "article-1", title: "مقالة 1", content: "تفاصيل المقالة الأولى..." },
-    { id: "article-2", title: "مقالة 2", content: "تفاصيل المقالة الثانية..." },
-    // spell-checker: enable
+    { id: "1", title: "مقالة 1", content: "تفاصيل المقالة الأولى..." },
+    { id: "2", title: "مقالة 2", content: "تفاصيل المقالة الثانية..." },
   ];
 
   const article = articles.find((a) => a.id === id);
