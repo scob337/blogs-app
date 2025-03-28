@@ -1,7 +1,6 @@
 import { Server } from "socket.io";
 import { createServer } from "http";
 
-// ✅ تأكد من أن global.io موجود قبل استخدامه
 if (!global._io) {
   const httpServer = createServer();
 
