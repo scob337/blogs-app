@@ -3,7 +3,6 @@
 import { useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Session } from "next-auth"; // ✅ استيراد نوع الـ Session من NextAuth
 
 // ✅ تعريف الـ Type للمستخدم
 interface User {
@@ -14,10 +13,7 @@ interface User {
 }
 
 export default function AuthChecker() {
-  const { data: session, status } = useSession() as {
-    data: Session | null;
-    status: "loading" | "authenticated" | "unauthenticated";
-  }; // ✅ تصحيح النوع
+  const { data: session = null, status = "unauthenticated" } = useSession() || {};
 
   const router = useRouter();
 
