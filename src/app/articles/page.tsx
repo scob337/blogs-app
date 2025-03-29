@@ -3,6 +3,7 @@
 import { useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { Session } from "next-auth"; // ✅ استيراد نوع الـ Session من NextAuth
 
 // ✅ تعريف الـ Type للمستخدم
 interface User {
@@ -12,41 +13,43 @@ interface User {
   password?: string | null;
 }
 
-// ✅ تعريف الـ Type للـ Session علشان يطابق الـ NextAuth
-interface AuthSession {
-  user?: User;
-}
-
 export default function AuthChecker() {
-  const { data: session } = useSession() as { data: AuthSession | null }; // ✅ تحديد نوع البيانات
+  const { data: session, status } = useSession() as {
+    data: Session | null;
+    status: "loading" | "authenticated" | "unauthenticated";
+  }; // ✅ تصحيح النوع
+
   const router = useRouter();
 
   // ✅ لفّ الفانكشن داخل useCallback علشان ما تتغيرش في كل ريندر
-  const registerUser = useCallback(async (user: User) => {
-    try {
-      const res = await fetch("/api/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(user),
-      });
+  const registerUser = useCallback(
+    async (user: User) => {
+      try {
+        const res = await fetch("/api/auth/register", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(user),
+        });
 
-      if (res.ok) {
-        console.log("User registered successfully");
-        router.push("/dashboard");
-      } else {
-        console.error("Error registering user");
+        if (res.ok) {
+          console.log("User registered successfully");
+          router.push("/dashboard");
+        } else {
+          console.error("Error registering user");
+        }
+      } catch (error) {
+        console.error("Error:", error);
       }
-    } catch (error) {
-      console.error("Error:", error);
-    }
-  }, [router]); // علشان نفس السبب، من الأفضل لفها بـ useCallback
+    },
+    [router]
+  );
 
   const checkUser = useCallback(
     async (user: User) => {
       try {
-        const res = await fetch("/api/check-user", {
+        const res = await fetch("/api/auth/login", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -58,7 +61,7 @@ export default function AuthChecker() {
 
         if (data.exists) {
           console.log("User exists, logging in...");
-          router.push("/dashboard");
+          router.push("/");
         } else {
           console.log("User not found, creating account...");
           await registerUser({
@@ -71,15 +74,17 @@ export default function AuthChecker() {
         console.error("Error checking user:", error);
       }
     },
-    [router, registerUser] // ✅ كده مش هيتغير إلا لما أحد التابعين يتغير
+    [router, registerUser]
   );
 
-  // ✅ `useEffect` مش هيعمل ريندر كل شوية دلوقتي
   useEffect(() => {
-    if (session?.user) {
-      checkUser(session.user); // ✅ تصحيح الخطأ هنا
+    if (status === "authenticated" && session?.user) {
+      checkUser({
+        ...session.user,
+        email: session.user.email ?? "",
+      });
     }
-  }, [session, checkUser]);
+  }, [session, status, checkUser]);
 
   return (
     <div className="flex justify-center items-center min-h-screen">
