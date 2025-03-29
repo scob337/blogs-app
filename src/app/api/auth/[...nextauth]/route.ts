@@ -1,4 +1,4 @@
-import NextAuth, { NextAuthOptions } from "next-auth";
+import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import GitHubProvider from "next-auth/providers/github";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
@@ -22,7 +22,7 @@ declare module "next-auth" {
   }
 }
 
-const authOptions: NextAuthOptions = {
+const auth = NextAuth({
   adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
@@ -44,9 +44,7 @@ const authOptions: NextAuthOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET as string,
   session: { strategy: "jwt" },
-};
+});
 
-// ✅ التصدير الافتراضي مع التايب الصحيح
-const handler = NextAuth(authOptions);
-export { handler as GET, handler as POST };
-export default handler;
+// ✅ تصدير `auth` بشكل صحيح للـ App Router
+export { auth as GET, auth as POST };
