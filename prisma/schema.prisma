@@ -8,13 +8,13 @@ datasource db {
 }
 
 model User {
-  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  id       String    @id @default(auto()) @map("_id") @db.ObjectId
   name     String
   email    String    @unique
   password String
-  posts    Post[] // ✅ علاقة عكسية مع Post
-  likes    Like[] // ✅ علاقة عكسية مع Like
-  comments Comment[] // ✅ علاقة عكسية مع Comment
+  posts    Post[]
+  likes    Like[]
+  comments Comment[]
 }
 
 model Post {
@@ -23,27 +23,36 @@ model Post {
   content   String
   authorId  String    @db.ObjectId
   author    User      @relation(fields: [authorId], references: [id])
-  likes     Like[] // ✅ علاقة عكسية مع Like
-  comments  Comment[] // ✅ علاقة عكسية مع Comment
+  likes     Like[]
+  comments  Comment[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 }
 
-model Like {
+model Comment {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  content   String
   userId    String   @db.ObjectId
   user      User     @relation(fields: [userId], references: [id])
   postId    String   @db.ObjectId
   post      Post     @relation(fields: [postId], references: [id])
+  likes     Like[] // ✅ إضافة علاقة اللايكات للكومنت
   createdAt DateTime @default(now())
 }
 
-model Comment {
- id        String   @id @default(auto()) @map("_id") @db.ObjectId
-   content   String
-  userId    String   @db.ObjectId
-  user      User     @relation(fields: [userId], references: [id])
-  postId    String   @db.ObjectId
-  post      Post     @relation(fields: [postId], references: [id])
+model Like {
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  userId String @db.ObjectId
+  user   User   @relation(fields: [userId], references: [id])
+
+  postId String? @db.ObjectId
+  post   Post?   @relation(fields: [postId], references: [id])
+
+  commentId String?  @db.ObjectId
+  comment   Comment? @relation(fields: [commentId], references: [id])
+
   createdAt DateTime @default(now())
+
+  @@unique([userId, postId])
+  @@unique([userId, commentId])
 }

@@ -1,8 +1,7 @@
 "use client";
-import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import Logo from '../../../public/logo.png'
+import Logo from "../Logo";
 const Links = [
   { id: 1, name: "Home", href: "/" },
   { id: 2, name: "About", href: "/about" },
@@ -13,22 +12,11 @@ const Navbar = () => {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="absolute top-0 left-0 z-50 w-full shadow-lg p-3">
+    <header className=" w-full shadow-lg p-3 bg-indigo-600 text-white fixed top-0 z-50">
       <div className="container mx-auto w-full">
         <div className="relative flex items-center justify-between px-5 w-full">
           <div className="w-[10%] flex justify-end px-4">
-            <Link href="/" className="flex items-center">
-              <Image
-                src={Logo}
-                alt="logo"
-                width={70}
-                height={50}
-                priority
-                objectFit="cover"
-              /> <span className="text-white font-bold">
-                Spot
-              </span>
-            </Link>
+          <Logo/>
           </div>
           <nav className="hidden lg:flex w-[50%] justify-center">
             <ul className="flex space-x-8">
@@ -36,7 +24,7 @@ const Navbar = () => {
                 <li key={link.id}>
                   <Link
                     href={link.href}
-                    className="text-white font-medium hover:text-gray-600"
+                    className="text-white font-medium hover:text-black"
                   >
                     {link.name}
                   </Link>
@@ -47,7 +35,10 @@ const Navbar = () => {
 
           <div className="w-[20%] hidden justify-start space-x-4  lg:flex">
             <button className="btn btn-soft">Sign in</button>
-            <button className="btn btn-neutral">Get Started</button>
+            <button className="btn btn-neutral">
+              
+              <Link href="/sign-up">Get Start</Link>
+            </button>
           </div>
 
           {/* زر الهامبرجر لفتح القائمة في الموبايل */}
