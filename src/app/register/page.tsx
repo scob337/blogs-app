@@ -84,7 +84,7 @@ const RegisterForm: React.FC = () => {
     // توليد صورة افتراضية بناءً على الاسم الأول واسم العائلة
     const img = `https://avatar.iran.liara.run/username?username=${formData.fName}+${formData.lName}`;
 
-    const { confirmPassword, ...dataToSend } = formData;
+    const { ...dataToSend } = formData;
 
     try {
       const response = await fetch("/api/auth/register", {
@@ -95,16 +95,16 @@ const RegisterForm: React.FC = () => {
         body: JSON.stringify({ ...dataToSend, img }),
       });
 
-      if (response.ok) {
-        setStatus("success");
-        setStatusMessage("Registration successful! Redirecting to login...");
-        setTimeout(() => {
-          router.push("/login");
-        }, 2000);
-      } else {
-        setStatus("error");
-        setStatusMessage("Email already exists.");
-      }
+const responseData = await response.json();
+if (response.ok) {
+  setStatus("success");
+  setStatusMessage(responseData.message || "Registration successful! Redirecting...");
+  setTimeout(() => router.push("/login"), 2000);
+} else {
+  setStatus("error");
+  setStatusMessage(responseData.error || "Something went wrong.");
+}
+
     } catch (error) {
       console.error("An error occurred:", error);
       setStatusMessage("An error occurred. Please try again later.");

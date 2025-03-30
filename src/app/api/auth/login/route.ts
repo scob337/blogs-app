@@ -22,7 +22,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const token: string = generateToken(user.id);
 
     const { password: _, ...userWithoutPassword } = user;
-
+    console.log(_)
     // ✅ إنشاء الاستجابة
     const response = NextResponse.json({ user: userWithoutPassword });
 
