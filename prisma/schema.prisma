@@ -23,9 +23,9 @@ model Post {
   id        String    @id @default(auto()) @map("_id") @db.ObjectId
   title     String
   content   String
-  thumbnail String?   // ✅ حقل اختياري لحفظ الصورة المصغرة
+  thumbnail String?   
   authorId  String    @db.ObjectId
-  author    User      @relation(fields: [authorId], references: [id])
+  author    User?     @relation(fields: [authorId], references: [id])
   likes     Like[]
   comments  Comment[]
   createdAt DateTime  @default(now())

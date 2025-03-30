@@ -31,7 +31,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       },
     });
 
-    return NextResponse.json(newPost, { status: 201 });
+    return NextResponse.json(newPost , { status: 201 });
   } catch (error) {
     console.error("❌ Error creating post:", error);
     return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
@@ -43,14 +43,27 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 export async function GET() {
   try {
     const posts = await prisma.post.findMany({
-        include: {
-            author: { select: { id: true, fName: true , img: true} }, // Replaced name with lName
-          },
+      include: {
+        author: { 
+          select: { 
+            id: true, 
+            fName: true, 
+            img: true 
+          } 
+        },
+      },
     });
 
-    return NextResponse.json(posts);
+    // 📌 حل المشكلة عن طريق استبدال `null` بكائن فارغ إذا لم يكن هناك مؤلف
+    const formattedPosts = posts.map(post => ({
+      ...post,
+      author: post.author ?? { id: null, fName: "Unknown", img: null }
+    }));
+
+    return NextResponse.json(formattedPosts);
   } catch (error) {
     console.error("❌ Error fetching posts:", error);
     return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
   }
 }
+

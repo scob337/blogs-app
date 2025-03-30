@@ -2,26 +2,27 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
-  const token = request.cookies.get('token'); // استبدل 'auth_token' باسم الكوكيز المستخدم في تطبيقك
+  const token = request.cookies.get('token'); // Replace 'auth_token' with the name of the cookie used in your app
 
   const { pathname } = request.nextUrl;
 
-  // قائمة بالمسارات التي يجب حمايتها من الوصول من قبل المستخدمين المسجّلين
-  const protectedPathsForAuthenticated = ['/login', '/register'];
+  // List of paths that should be protected from access by authenticated users
+  const protectedPathsForAuthenticated = ['/login', '/register' ,"/about"];
 
   if (token && protectedPathsForAuthenticated.includes(pathname)) {
-    // إذا كان المستخدم مسجّلاً ويحاول الوصول إلى صفحة تسجيل الدخول أو التسجيل، إعادة التوجيه إلى /dashboard
+    // If the user is authenticated and tries to access login or register pages, redirect to /dashboard
     return NextResponse.redirect(new URL('/', request.url));
   }
 
-  // يمكنك إضافة منطق إضافي هنا، مثل إعادة توجيه المستخدمين غير المسجّلين من مسارات محمية أخرى
+  // You can add additional logic here, such as redirecting unauthenticated users from other protected paths
   if (!token && pathname === '/articles') {
+
     return NextResponse.redirect(new URL('/login', request.url));
   }
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/login', '/register'], // تحديد المسارات التي تنطبق عليها الـ Middleware
+  matcher: ['/login', '/register', '/articles'], 
 };
 
