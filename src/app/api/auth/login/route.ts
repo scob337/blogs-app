@@ -11,12 +11,12 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const user: User | null = await prisma.user.findUnique({ where: { email } });
 
     if (!user) {
-      return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
+      return NextResponse.json({ error: "Email or Password is incorrect" }, { status: 401 });
     }
 
     const isMatch: boolean = await comparePassword(password, user.password);
     if (!isMatch) {
-      return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
+      return NextResponse.json({ error: "Email or Password is incorrect" }, { status: 401 });
     }
 
     const token: string = generateToken(user.id);

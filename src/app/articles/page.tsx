@@ -28,10 +28,10 @@ export default function AuthChecker() {
           },
           body: JSON.stringify(user),
         });
-
+        console.log(res)
         if (res.ok) {
           console.log("User registered successfully");
-          router.push("/dashboard");
+          router.push("/");
         } else {
           console.error("Error registering user");
         }
@@ -54,7 +54,7 @@ export default function AuthChecker() {
         });
 
         const data = await res.json();
-
+        console.log(data)
         if (data.exists) {
           console.log("User exists, logging in...");
           router.push("/");
@@ -79,7 +79,9 @@ export default function AuthChecker() {
         ...session.user,
         email: session.user.email ?? "",
       });
+      console.log("User authenticated:", session.user);
     }
+
   }, [session, status, checkUser]);
 
   return (

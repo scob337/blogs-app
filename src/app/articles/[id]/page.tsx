@@ -1,4 +1,3 @@
-import { notFound } from "next/navigation";
 
 type Params = Promise<{ id: string }>;
 
@@ -12,8 +11,9 @@ const { id } = await params;
 
   const article = articles.find((a) => a.id === id);
 
-  if (!article) return notFound();
-
+  if (!article) {
+    return <p>مقالة غير موجودة</p>;
+  }
   return (
     <main className="container mx-auto p-6">
       <h1 className="text-3xl font-bold">{article.title}</h1>

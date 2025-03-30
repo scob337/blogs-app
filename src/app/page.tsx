@@ -1,4 +1,3 @@
-"use client";
 import Hero9 from "@/Components/Home/Hero9";
 
 

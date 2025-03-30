@@ -5,7 +5,7 @@ import Logo from "../Logo";
 const Links = [
   { id: 1, name: "Home", href: "/" },
   { id: 2, name: "About", href: "/about" },
-  { id: 3, name: "Write", href: "/write" },
+  { id: 3, name: "Write", href: "/articles" },
 ];
 
 const Navbar = () => {
@@ -34,7 +34,10 @@ const Navbar = () => {
           </nav>
 
           <div className="w-[20%] hidden justify-start space-x-4  lg:flex">
-            <button className="btn btn-soft">Sign in</button>
+            <button className="btn btn-soft">
+              <Link href="/login">Sign in</Link>
+            </button>
+            
             <button className="btn btn-neutral">
               
               <Link href="/sign-up">Get Start</Link>
