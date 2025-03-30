@@ -13,7 +13,7 @@ export async function GET(
     const post = await prisma.post.findUnique({
       where: { id: (await params).id },
       include: {
-        author: { select: { id: true, name: true, email: true } },
+        author: { select: { id: true, fName: true, email: true } },
       },
     });
 
