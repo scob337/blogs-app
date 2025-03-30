@@ -2,6 +2,7 @@
 
 import {  useState } from 'react';
 import { useRouter } from "next/navigation";
+import { useUser } from '../../../contexts/UserContext';
 
 const Login = () => {
   return (
@@ -38,7 +39,7 @@ const LoginForm = () => {
     password: "",
   });
 
-
+  const { login } = useUser();
   const [error, setError] = useState<string | null>(null);
   const [Success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -52,45 +53,50 @@ const LoginForm = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    
     if (!information.email || !information.password) {
       setError("Please fill in all fields.");
-      setTimeout(() => {
-        setError(null);
-      }, 2000);
+      setTimeout(() => setError(null), 2000);
       return;
     }
+  
     setLoading(true);
+  
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(information),
       });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+  
+      const userData = await res.json();
+  
+      if (!res.ok) throw new Error(userData.error);
+  
       setLoading(false);
       setSuccess("Login successful!");
       setError(null);
+      
       setTimeout(() => {
+        login(userData);
         setSuccess(null);
         router.replace("/");
       }, 1000);
+      
     } catch (err: unknown) {
       setLoading(false);
+      setSuccess(null);
+  
       if (err instanceof Error) {
         setError(err.message);
-        
       } else {
         setError("An unknown error occurred.");
-        setSuccess(null);
-        setTimeout(() => {
-        setError(null);
-        }, 1000);
       }
+  
+      setTimeout(() => setError(null), 1000);
     }
   };
-
+  
 
   return (
     <div className="mx-auto max-w-xs">
@@ -130,7 +136,7 @@ const LoginForm = () => {
         flex items-center justify-center focus:shadow-outline focus:outline-none cursor-pointer
         ${loading && "opacity-50 cursor-not-allowed"}
         `}
-        onClick={() => handleSubmit} // 🔥 جرب تسجيل القيم في الكونسول
+        onClick={() => handleSubmit} 
       >
         <span className="ml-3">
           {loading? "Loading..." : "Login"}

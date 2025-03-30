@@ -22,13 +22,17 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const token: string = generateToken(user.id);
 
     const { password: _, ...userWithoutPassword } = user;
-        console.log(_)
+
+    // ✅ إنشاء الاستجابة
     const response = NextResponse.json({ user: userWithoutPassword });
 
-    response.headers.set(
-      "Set-Cookie",
-      `token=${token}; HttpOnly; Secure; Path=/; Max-Age=${7 * 24 * 60 * 60}; SameSite=Strict`
-    );
+    response.cookies.set("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production", // ❗ مهم عند التطوير
+      path: "/",
+      maxAge: 7 * 24 * 60 * 60, // أسبوع
+      sameSite: "strict",
+    });
 
     return response;
   } catch (error: unknown) {

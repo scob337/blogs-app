@@ -5,6 +5,9 @@ import "./globals.css";
 import Navbar from "@/Components/NavBars/UnAuthNavbar";
 import Footer from "@/Components/Footer/Footer";
 import { SessionProvider } from "next-auth/react";
+import { UserProvider, useUser } from "../../contexts/UserContext";
+import AuthNav from "@/Components/NavBars/AuthNavbar";
+import Loading from "@/Components/Loading";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,10 +19,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-
 export default function RootLayout({
-
-  
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -29,11 +29,24 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Navbar />
-        <SessionProvider>{children}</SessionProvider>
-
-        <Footer/>
+        <UserProvider>
+          <MainLayout>{children}</MainLayout>
+        </UserProvider>
       </body>
     </html>
+  );
+}
+
+function MainLayout({ children }: { children: React.ReactNode }) {
+  const { user, loading } = useUser();
+
+  if (loading) return <Loading/>;
+
+  return (
+    <>
+      {user ? <AuthNav /> : <Navbar />}
+      <SessionProvider>{children}</SessionProvider>
+      <Footer />
+    </>
   );
 }

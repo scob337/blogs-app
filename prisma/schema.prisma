@@ -9,9 +9,11 @@ datasource db {
 
 model User {
   id       String    @id @default(auto()) @map("_id") @db.ObjectId
-  name     String
+  lName     String?
+  fName     String?
   email    String    @unique
   password String
+  img      String?
   posts    Post[]
   likes    Like[]
   comments Comment[]
@@ -21,6 +23,7 @@ model Post {
   id        String    @id @default(auto()) @map("_id") @db.ObjectId
   title     String
   content   String
+  thumbnail String?   // ✅ حقل اختياري لحفظ الصورة المصغرة
   authorId  String    @db.ObjectId
   author    User      @relation(fields: [authorId], references: [id])
   likes     Like[]
@@ -28,6 +31,7 @@ model Post {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 }
+
 
 model Comment {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId

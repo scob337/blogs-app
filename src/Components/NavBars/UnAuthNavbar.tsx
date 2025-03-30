@@ -40,7 +40,7 @@ const UnAuthNavbar = () => {
             
             <button className="btn btn-neutral">
               
-              <Link href="/sign-up">Get Start</Link>
+              <Link href="/register">Get Start</Link>
             </button>
           </div>
 
@@ -73,8 +73,14 @@ const UnAuthNavbar = () => {
               </ul>
 
               <div className="mt-4 space-y-2">
-                <button className="w-full btn btn-soft">Sign in</button>
-                <button className="w-full btn btn-neutral">Get Started</button>
+              <button className="btn btn-soft">
+              <Link href="/login">Sign in</Link>
+            </button>
+            
+            <button className="btn btn-neutral">
+              
+              <Link href="/register">Get Start</Link>
+            </button>
               </div>
             </div>
           )}

@@ -4,16 +4,18 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 interface FormData {
-  name: string;
+  fName: string;
+  lName: string;
   email: string;
   password: string;
   confirmPassword: string;
 }
 
 const RegisterForm: React.FC = () => {
-    const router = useRouter();
+  const router = useRouter();
   const [formData, setFormData] = useState<FormData>({
-    name: "",
+    fName: "",
+    lName: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -22,7 +24,8 @@ const RegisterForm: React.FC = () => {
   const [errors, setErrors] = useState<Partial<FormData>>({});
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<"error" | "success" | null>(null);
-  const [statusMessage , setStatusMessage] = useState<string | null>(null);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -34,8 +37,12 @@ const RegisterForm: React.FC = () => {
   const validateForm = (): boolean => {
     const newErrors: Partial<FormData> = {};
 
-    if (!formData.name.trim()) {
-      newErrors.name = "Name is required";
+    if (!formData.fName.trim()) {
+      newErrors.fName = "First name is required";
+    }
+
+    if (!formData.lName.trim()) {
+      newErrors.lName = "Last name is required";
     }
 
     if (!formData.email) {
@@ -73,6 +80,10 @@ const RegisterForm: React.FC = () => {
     setLoading(true);
     setStatus(null);
     setStatusMessage(null);
+
+    // توليد صورة افتراضية بناءً على الاسم الأول واسم العائلة
+    const img = `https://avatar.iran.liara.run/username?username=${formData.fName}+${formData.lName}`;
+
     const { confirmPassword, ...dataToSend } = formData;
 
     try {
@@ -81,35 +92,32 @@ const RegisterForm: React.FC = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(dataToSend),
+        body: JSON.stringify({ ...dataToSend, img }),
       });
 
       if (response.ok) {
         setStatus("success");
         setStatusMessage("Registration successful! Redirecting to login...");
         setTimeout(() => {
-        router.push("/login");
+          router.push("/login");
         }, 2000);
       } else {
         setStatus("error");
         setStatusMessage("Email already exists.");
-        // Handle errors here
       }
     } catch (error) {
       console.error("An error occurred:", error);
-        setStatusMessage("An error occurred. Please try again later.");
-        setStatus("error");
+      setStatusMessage("An error occurred. Please try again later.");
+      setStatus("error");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-lg mx-auto
-    mt-20
-    bg-white dark:bg-gray-800 rounded-lg shadow-md px-8 py-10 flex flex-col items-center">
+    <div className="max-w-lg mx-auto mt-20 bg-white dark:bg-gray-800 rounded-lg shadow-md px-8 py-10 flex flex-col items-center">
       <h1 className="text-xl font-bold text-center text-gray-700 dark:text-gray-200 mb-8">
-        Welcome to G-Spot Blogs 
+        Welcome to G-Spot Blogs
       </h1>
       {status && (
         <div
@@ -121,21 +129,44 @@ const RegisterForm: React.FC = () => {
         </div>
       )}
       <form onSubmit={handleSubmit} className="w-full flex flex-col gap-4">
-        {[
-          { label: "Name", name: "name", type: "text" },
-          { label: "Email", name: "email", type: "email" },
+        <div className="flex gap-4">
+          <div className="w-1/2">
+            <label htmlFor="fName" className="text-sm text-gray-700 dark:text-gray-200">
+              First Name:
+            </label>
+            <input
+              type="text"
+              id="fName"
+              name="fName"
+              value={formData.fName}
+              onChange={handleChange}
+              className="w-full px-3 dark:text-gray-200 dark:bg-gray-900 py-2 rounded-md border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            />
+            {errors.fName && <p className="text-red-500 text-sm mt-1">{errors.fName}</p>}
+          </div>
+
+          <div className="w-1/2">
+            <label htmlFor="lName" className="text-sm text-gray-700 dark:text-gray-200">
+              Last Name:
+            </label>
+            <input
+              type="text"
+              id="lName"
+              name="lName"
+              value={formData.lName}
+              onChange={handleChange}
+              className="w-full px-3 dark:text-gray-200 dark:bg-gray-900 py-2 rounded-md border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            />
+            {errors.lName && <p className="text-red-500 text-sm mt-1">{errors.lName}</p>}
+          </div>
+        </div>
+
+        {[{ label: "Email", name: "email", type: "email" },
           { label: "Password", name: "password", type: "password" },
-          {
-            label: "Confirm Password",
-            name: "confirmPassword",
-            type: "password",
-          },
-        ].map(({ label, name, type }) => (
+          { label: "Confirm Password", name: "confirmPassword", type: "password" }]
+          .map(({ label, name, type }) => (
           <div key={name} className="flex items-start flex-col justify-start">
-            <label
-              htmlFor={name}
-              className="text-sm text-gray-700 dark:text-gray-200 mr-2"
-            >
+            <label htmlFor={name} className="text-sm text-gray-700 dark:text-gray-200">
               {label}:
             </label>
             <input
@@ -147,12 +178,11 @@ const RegisterForm: React.FC = () => {
               className="w-full px-3 dark:text-gray-200 dark:bg-gray-900 py-2 rounded-md border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
             {errors[name as keyof FormData] && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors[name as keyof FormData]}
-              </p>
+              <p className="text-red-500 text-sm mt-1">{errors[name as keyof FormData]}</p>
             )}
           </div>
         ))}
+
         <button
           type="submit"
           disabled={loading}
@@ -163,14 +193,6 @@ const RegisterForm: React.FC = () => {
           {loading ? "Loading..." : "Register"}
         </button>
       </form>
-      <div className="mt-4 text-center">
-        <span className="text-sm text-gray-500 dark:text-gray-300">
-          Already have an account?{" "}
-        </span>
-        <a href="/login" className="text-blue-500 hover:text-blue-600">
-          Login
-        </a>
-      </div>
     </div>
   );
 };

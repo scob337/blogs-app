@@ -5,9 +5,7 @@ import { verifyToken } from "../../../../utils/auth";
 const prisma = new PrismaClient();
 
 // ✅ إنشاء مقال جديد
-export async function POST(
-  request: NextRequest
- ): Promise<NextResponse> {
+export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     // 📌 استخراج التوكن من الكوكيز
     const token = request.cookies.get("token")?.value;
@@ -18,7 +16,7 @@ export async function POST(
     if (!decoded) return NextResponse.json({ error: "Invalid token" }, { status: 401 });
 
     // 📌 جلب بيانات المقال
-    const { title, content } = await request.json();
+    const { title, content, thumbnail } = await request.json();
     if (!title || !content) {
       return NextResponse.json({ error: "Title and content are required" }, { status: 400 });
     }
@@ -28,7 +26,8 @@ export async function POST(
       data: {
         title,
         content,
-        authorId: decoded.id, // استخدام ID من التوكن
+        thumbnail, 
+        authorId: decoded.id,
       },
     });
 
@@ -39,12 +38,13 @@ export async function POST(
   }
 }
 
+
 // ✅ جلب جميع المقالات
 export async function GET() {
   try {
     const posts = await prisma.post.findMany({
         include: {
-            author: { select: { id: true, name: true } },
+            author: { select: { id: true, fName: true , img: true} }, // Replaced name with lName
           },
     });
 
