@@ -17,7 +17,6 @@ const Login = () => {
                   Login with E-mail
                 </div>
               </div>
-
               <LoginForm />
             </div>
           </div>
