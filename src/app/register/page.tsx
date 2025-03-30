@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 interface FormData {
@@ -10,6 +11,7 @@ interface FormData {
 }
 
 const RegisterForm: React.FC = () => {
+    const router = useRouter();
   const [formData, setFormData] = useState<FormData>({
     name: "",
     email: "",
@@ -19,8 +21,8 @@ const RegisterForm: React.FC = () => {
 
   const [errors, setErrors] = useState<Partial<FormData>>({});
   const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState<"success" | "error" | null>(null);
-
+  const [status, setStatus] = useState<"error" | "success" | null>(null);
+  const [statusMessage , setStatusMessage] = useState<string | null>(null);
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -70,7 +72,7 @@ const RegisterForm: React.FC = () => {
 
     setLoading(true);
     setStatus(null);
-
+    setStatusMessage(null);
     const { confirmPassword, ...dataToSend } = formData;
 
     try {
@@ -84,25 +86,30 @@ const RegisterForm: React.FC = () => {
 
       if (response.ok) {
         setStatus("success");
-        console.log("Registration successful");
-        // Perform additional actions after successful registration
+        setStatusMessage("Registration successful! Redirecting to login...");
+        setTimeout(() => {
+        router.push("/login");
+        }, 2000);
       } else {
         setStatus("error");
-        console.error("Registration failed");
+        setStatusMessage("Email already exists.");
         // Handle errors here
       }
     } catch (error) {
-      setStatus("error");
       console.error("An error occurred:", error);
+        setStatusMessage("An error occurred. Please try again later.");
+        setStatus("error");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-lg mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-md px-8 py-10 flex flex-col items-center">
+    <div className="max-w-lg mx-auto
+    mt-20
+    bg-white dark:bg-gray-800 rounded-lg shadow-md px-8 py-10 flex flex-col items-center">
       <h1 className="text-xl font-bold text-center text-gray-700 dark:text-gray-200 mb-8">
-        Welcome to My Company
+        Welcome to G-Spot Blogs 
       </h1>
       {status && (
         <div
@@ -110,9 +117,7 @@ const RegisterForm: React.FC = () => {
             status === "success" ? "bg-green-500" : "bg-red-500"
           }`}
         >
-          {status === "success"
-            ? "Registration successful!"
-            : "Registration failed. Please try again."}
+          {statusMessage}
         </div>
       )}
       <form onSubmit={handleSubmit} className="w-full flex flex-col gap-4">

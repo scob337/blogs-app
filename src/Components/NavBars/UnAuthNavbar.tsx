@@ -8,7 +8,7 @@ const Links = [
   { id: 3, name: "Write", href: "/articles" },
 ];
 
-const Navbar = () => {
+const UnAuthNavbar = () => {
   const [open, setOpen] = useState(false);
 
   return (
@@ -84,7 +84,7 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+export default UnAuthNavbar;
 
 
 
