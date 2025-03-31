@@ -3,7 +3,6 @@ import Link from "next/link";
 import { useState } from "react";
 import Logo from "../Logo";
 const Links = [
-  { id: 1, name: "Home", href: "/" },
   { id: 2, name: "About", href: "/about" },
   { id: 3, name: "Write", href: "/articles" },
 ];
