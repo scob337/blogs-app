@@ -1,12 +1,10 @@
 "use client";
-
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/Components/NavBars/UnAuthNavbar";
-import Footer from "@/Components/Footer/Footer";
+import Footer from "@/Components/Footer/Footer"; // Ensure this path is correct and the Footer component exists
 import { SessionProvider } from "next-auth/react";
 import { UserProvider, useUser } from "../../contexts/UserContext";
-import AuthNav from "@/Components/NavBars/AuthNavbar";
 import Loading from "@/Components/Loading";
 
 const geistSans = Geist({
@@ -30,7 +28,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <UserProvider>
-          <MainLayout>{children}</MainLayout>
+            <MainLayout>{children}</MainLayout>
         </UserProvider>
       </body>
     </html>
@@ -40,11 +38,11 @@ export default function RootLayout({
 function MainLayout({ children }: { children: React.ReactNode }) {
   const { user, loading } = useUser();
 
-  if (loading) return <Loading/>;
+  if (loading) return <Loading />;
 
   return (
     <>
-      {user ? <AuthNav /> : <Navbar />}
+      {!user && <Navbar />}
       <SessionProvider>{children}</SessionProvider>
       <Footer />
     </>

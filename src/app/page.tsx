@@ -1,7 +1,7 @@
 import Hero9 from "@/Components/Home/Hero9";
 
 
-const Page = () => {
+const Main = () => {
 
 
   return (
@@ -11,4 +11,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default Main;

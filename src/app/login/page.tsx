@@ -80,7 +80,7 @@ const LoginForm = () => {
       setTimeout(() => {
         login(userData);
         setSuccess(null);
-        router.replace("/");
+        router.replace("/articles");
       }, 1000);
       
     } catch (err: unknown) {
