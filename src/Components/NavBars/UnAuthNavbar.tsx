@@ -14,7 +14,7 @@ const UnAuthNavbar = () => {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className=" w-full shadow-lg p-3 bg-indigo-600 text-white fixed top-0 z-50">
+    <header className=" w-full shadow-lg p-3 bg-indigo-600 text-white sticky top-0 z-50">
       <div className="container mx-auto w-full">
         <div className="relative flex items-center justify-between px-5 w-full">
           <div className="w-[10%] flex justify-end px-4">

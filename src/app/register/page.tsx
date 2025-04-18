@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useState } from "react";
 
 interface FormData {
@@ -115,84 +116,122 @@ if (response.ok) {
   };
 
   return (
-    <div className="max-w-lg mx-auto mt-20 bg-white dark:bg-gray-800 rounded-lg shadow-md px-8 py-10 flex flex-col items-center">
-      <h1 className="text-xl font-bold text-center text-gray-700 dark:text-gray-200 mb-8">
-        Welcome to G-Spot Blogs
-      </h1>
-      {status && (
-        <div
-          className={`w-full text-white text-center py-2 mb-4 rounded-md ${
-            status === "success" ? "bg-green-500" : "bg-red-500"
-          }`}
-        >
-          {statusMessage}
-        </div>
-      )}
-      <form onSubmit={handleSubmit} className="w-full flex flex-col gap-4">
-        <div className="flex gap-4">
-          <div className="w-1/2">
-            <label htmlFor="fName" className="text-sm text-gray-700 dark:text-gray-200">
-              First Name:
-            </label>
-            <input
-              type="text"
-              id="fName"
-              name="fName"
-              value={formData.fName}
-              onChange={handleChange}
-              className="w-full px-3 dark:text-gray-200 dark:bg-gray-900 py-2 rounded-md border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            />
-            {errors.fName && <p className="text-red-500 text-sm mt-1">{errors.fName}</p>}
-          </div>
-
-          <div className="w-1/2">
-            <label htmlFor="lName" className="text-sm text-gray-700 dark:text-gray-200">
-              Last Name:
-            </label>
-            <input
-              type="text"
-              id="lName"
-              name="lName"
-              value={formData.lName}
-              onChange={handleChange}
-              className="w-full px-3 dark:text-gray-200 dark:bg-gray-900 py-2 rounded-md border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            />
-            {errors.lName && <p className="text-red-500 text-sm mt-1">{errors.lName}</p>}
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-lg mx-auto">
+        {/* Logo or Brand Section */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Account</h1>
+          <p className="text-gray-600">Join our community of writers and readers</p>
         </div>
 
-        {[{ label: "Email", name: "email", type: "email" },
-          { label: "Password", name: "password", type: "password" },
-          { label: "Confirm Password", name: "confirmPassword", type: "password" }]
-          .map(({ label, name, type }) => (
-          <div key={name} className="flex items-start flex-col justify-start">
-            <label htmlFor={name} className="text-sm text-gray-700 dark:text-gray-200">
-              {label}:
-            </label>
-            <input
-              type={type}
-              id={name}
-              name={name}
-              value={formData[name as keyof FormData]}
-              onChange={handleChange}
-              className="w-full px-3 dark:text-gray-200 dark:bg-gray-900 py-2 rounded-md border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            />
-            {errors[name as keyof FormData] && (
-              <p className="text-red-500 text-sm mt-1">{errors[name as keyof FormData]}</p>
-            )}
-          </div>
-        ))}
+        {/* Card Container */}
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-gray-100">
+          {/* Status Message */}
+          {status && (
+            <div
+              className={`mb-6 p-4 rounded-lg ${
+                status === "success" 
+                  ? "bg-green-50 text-green-700 border border-green-200" 
+                  : "bg-red-50 text-red-700 border border-red-200"
+              }`}
+            >
+              <p className="text-center text-sm font-medium">{statusMessage}</p>
+            </div>
+          )}
 
-        <button
-          type="submit"
-          disabled={loading}
-          className={`bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md shadow-sm transition duration-200 ease-in-out ${
-            loading ? "opacity-50 cursor-not-allowed" : ""
-          }`}
-        >
-          {loading ? "Loading..." : "Register"}
-        </button>
-      </form>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Names Section */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label htmlFor="fName" className="block text-sm font-medium text-gray-700">
+                  First Name
+                </label>
+                <input
+                  type="text"
+                  id="fName"
+                  name="fName"
+                  value={formData.fName}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+                  placeholder="John"
+                />
+                {errors.fName && <p className="text-red-500 text-xs mt-1">{errors.fName}</p>}
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="lName" className="block text-sm font-medium text-gray-700">
+                  Last Name
+                </label>
+                <input
+                  type="text"
+                  id="lName"
+                  name="lName"
+                  value={formData.lName}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+                  placeholder="Doe"
+                />
+                {errors.lName && <p className="text-red-500 text-xs mt-1">{errors.lName}</p>}
+              </div>
+            </div>
+
+            {/* Email & Password Fields */}
+            {[
+              { label: "Email Address", name: "email", type: "email", placeholder: "you@example.com" },
+              { label: "Password", name: "password", type: "password", placeholder: "••••••••" },
+              { label: "Confirm Password", name: "confirmPassword", type: "password", placeholder: "••••••••" }
+            ].map(({ label, name, type, placeholder }) => (
+              <div key={name} className="space-y-2">
+                <label htmlFor={name} className="block text-sm font-medium text-gray-700">
+                  {label}
+                </label>
+                <input
+                  type={type}
+                  id={name}
+                  name={name}
+                  value={formData[name as keyof FormData]}
+                  onChange={handleChange}
+                  placeholder={placeholder}
+                  className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+                />
+                {errors[name as keyof FormData] && (
+                  <p className="text-red-500 text-xs mt-1">{errors[name as keyof FormData]}</p>
+                )}
+              </div>
+            ))}
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={loading}
+              className={`w-full py-3 px-4 rounded-lg text-white font-medium transition duration-200 
+                ${loading 
+                  ? "bg-blue-400 cursor-not-allowed" 
+                  : "bg-blue-600 hover:bg-blue-700 active:bg-blue-800"}`}
+            >
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                  </svg>
+                  Processing...
+                </span>
+              ) : (
+                "Create Account"
+              )}
+            </button>
+
+            {/* Login Link */}
+            <div className="text-center text-sm">
+              <span className="text-gray-600">Already have an account?</span>{" "}
+              <Link href="/login" className="text-blue-600 hover:text-blue-700 font-medium">
+                Sign in
+              </Link>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   );
 };

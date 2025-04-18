@@ -3,33 +3,30 @@
 import {  useState } from 'react';
 import { useRouter } from "next/navigation";
 import { useUser } from '../../../contexts/UserContext';
+import Link from 'next/link';
 
 const Login = () => {
   return (
-    <div className="min-h-screen bg-gray-100 text-gray-900 flex justify-center">
-      <div className="max-w-screen-xl m-0 sm:m-10 bg-white shadow sm:rounded-lg flex justify-center flex-1">
-        <div className="lg:w-1/2 xl:w-5/12 p-6 sm:p-12">
-          <div className="mt-12 flex flex-col items-center">
-            <h1 className="text-2xl xl:text-3xl font-extrabold">Login</h1>
-            <div className="w-full flex-1 mt-8">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-lg mx-auto">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h1>
+          <p className="text-gray-600">Sign in to continue to your account</p>
+        </div>
 
-              <div className="my-12 border-b text-center">
-                <div className="leading-none px-2 inline-block text-sm text-gray-600 tracking-wide font-medium bg-white transform translate-y-1/2">
-                  Login with E-mail
-                </div>
-              </div>
-              <LoginForm />
-            </div>
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-gray-100">
+          <LoginForm />
+          <div className="mt-6 text-center text-sm">
+            <span className="text-gray-600">Don't have an account?</span>{" "}
+            <Link href="/register" className="text-indigo-600 hover:text-indigo-700 font-medium">
+              Create Account
+            </Link>
           </div>
         </div>
       </div>
     </div>
   );
 };
-
-
-
-
 
 const LoginForm = () => {
   const router = useRouter();
@@ -99,51 +96,72 @@ const LoginForm = () => {
   
 
   return (
-    <div className="mx-auto max-w-xs">
+    <div className="w-full">
+      {error && (
+        <div className="mb-6 p-4 rounded-lg bg-red-50 text-red-700 border border-red-200 text-sm">
+          {error}
+        </div>
+      )}
+      {Success && (
+        <div className="mb-6 p-4 rounded-lg bg-green-50 text-green-700 border border-green-200 text-sm">
+          {Success}
+        </div>
+      )}
 
-      {error !=null &&       <div className="bg-red-100
-      mb-2 text-center
-      text-red-800 text-lg font-medium m-auto px-2.5 py-2 rounded-sm
-       dark:bg-red-900 dark:text-red-300">{error}</div>}
-       {Success !=null &&       <div className="bg-green-100
-      mb-2 text-center
-      text-green-800 text-lg font-medium m-auto px-2.5 py-2 rounded-sm
-       dark:bg-green-900 dark:text-green-300">{Success}</div> }
-<form onSubmit={handleSubmit}>
-<input
-        name="email"
-        value={information.email}
-        onChange={handleChange}
-        className="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white"
-        type="email"
-        required
-        placeholder="Email"
-      />
-      <input
-        name="password"
-        value={information.password}
-        onChange={handleChange}
-        className="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white mt-5"
-        type="password"
-        placeholder="Password"
-        required
-      />
-      <button
-        disabled={loading}
-        className={`mt-5 tracking-wide font-semibold
-       bg-indigo-500 text-gray-100 w-full py-4 rounded-lg
-        hover:bg-indigo-700 transition-all duration-300 ease-in-out 
-        flex items-center justify-center focus:shadow-outline focus:outline-none cursor-pointer
-        ${loading && "opacity-50 cursor-not-allowed"}
-        `}
-        onClick={() => handleSubmit} 
-      >
-        <span className="ml-3">
-          {loading? "Loading..." : "Login"}
-        </span>
-      </button>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-2">
+          <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+            Email Address
+          </label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            value={information.email}
+            onChange={handleChange}
+            required
+            placeholder="you@example.com"
+            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition duration-200"
+          />
+        </div>
 
-</form>
+        <div className="space-y-2">
+          <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+            Password
+          </label>
+          <input
+            id="password"
+            name="password"
+            type="password"
+            value={information.password}
+            onChange={handleChange}
+            required
+            placeholder="••••••••"
+            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition duration-200"
+          />
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className={`w-full py-3 px-4 rounded-lg text-white font-medium transition duration-200 
+            ${loading 
+              ? "bg-indigo-400 cursor-not-allowed" 
+              : "bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800"}`}
+        >
+          {loading ? (
+            <span className="flex items-center justify-center gap-2">
+              <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+              </svg>
+              Processing...
+            </span>
+          ) : (
+            "Sign in"
+          )}
+        </button>
+      </form>
     </div>
   );
 };
