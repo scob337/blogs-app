@@ -52,7 +52,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   // ✅ دالة تسجيل الدخول
   const login = (userData: User) => {
     setUser(userData);
-    Router.replace("/auth")
+    Router.push("/auth")
   };
 
   const logout = async () => {
@@ -61,7 +61,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
       // هنا ممكن تحذف الكوكيز أو أي شيء آخر حسب الحاجة
       
       setUser(null);
-      Router.replace("/") // تحويل المستخدم إلى الصفحة الرئيسية
+      Router.push("/") // تحويل المستخدم إلى الصفحة الرئيسية
     } catch (error) {
       console.error("Logout failed:", error);
     }
