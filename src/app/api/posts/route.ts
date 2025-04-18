@@ -52,18 +52,37 @@ export async function GET() {
           } 
         },
       },
+      orderBy: {
+        createdAt: 'desc'
+      }
     });
 
-    // 📌 حل المشكلة عن طريق استبدال `null` بكائن فارغ إذا لم يكن هناك مؤلف
+    if (!posts || posts.length === 0) {
+      return NextResponse.json([], { status: 200 });
+    }
+
     const formattedPosts = posts.map(post => ({
       ...post,
       author: post.author ?? { id: null, fName: "Unknown", img: null }
     }));
 
-    return NextResponse.json(formattedPosts);
+    return NextResponse.json(formattedPosts, { 
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
   } catch (error) {
     console.error("❌ Error fetching posts:", error);
-    return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch posts" }, 
+      { 
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    );
   }
 }
 

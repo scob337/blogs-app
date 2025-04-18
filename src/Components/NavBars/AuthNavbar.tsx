@@ -37,7 +37,9 @@ logout()
         <div className="flex justify-between h-16 items-center relative">
           {/* Logo */}
           <div className="flex items-center">
+            <Link href="/auth">
               <Logo/>
+            </Link>
           </div>
 
           {/* Search Bar */}
@@ -67,7 +69,7 @@ logout()
           <div className="flex items-center space-x-4">
             {/* Write Blog Button (Responsive) */}
             <button className="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg hidden lg:flex items-center">
-              <Link href="/article/create" className="lg:flex items-center">
+              <Link href="/auth/articles/create" className="lg:flex items-center">
               <Pencil className="h-5 w-5 mr-2" />
               Write Blog
               </Link>

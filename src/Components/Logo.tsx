@@ -1,11 +1,9 @@
-import Link from 'next/link'
 import React from 'react'
 import logoImage from '../../public/logo.png'
 import Image from 'next/image'
 
 const Logo = () => {
-  return (
-            <Link href="/" className="flex items-center">
+  return (<section className='flex items-center'>
               <Image
                 src={logoImage}
                 alt="logo"
@@ -16,7 +14,7 @@ const Logo = () => {
               /> <span className="text-white font-bold">
                 Spot
               </span>
-            </Link>
+              </section>
   )
 }
 export default Logo
