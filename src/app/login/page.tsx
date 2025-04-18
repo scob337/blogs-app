@@ -17,7 +17,7 @@ const Login = () => {
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-gray-100">
           <LoginForm />
           <div className="mt-6 text-center text-sm">
-            <span className="text-gray-600">Don't have an account?</span>{" "}
+            <span className="text-gray-600">{"Don't have an account?"}</span>
             <Link href="/register" className="text-indigo-600 hover:text-indigo-700 font-medium">
               Create Account
             </Link>
