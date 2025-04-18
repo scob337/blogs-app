@@ -78,7 +78,7 @@ const LoginForm = () => {
         login(userData);
         setSuccess(null);
         router.replace("/auth");
-      }, 1000);
+      }, 400);
       
     } catch (err: unknown) {
       setLoading(false);

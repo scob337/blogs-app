@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
+import { useRouter } from "next/navigation"
 
 interface User {
   id: string;
@@ -27,6 +28,7 @@ const UserContext = createContext<UserContextType>({
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const Router = useRouter()
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -50,6 +52,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   // ✅ دالة تسجيل الدخول
   const login = (userData: User) => {
     setUser(userData);
+    Router.replace("/auth")
   };
 
   const logout = async () => {
@@ -58,6 +61,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
       // هنا ممكن تحذف الكوكيز أو أي شيء آخر حسب الحاجة
       
       setUser(null);
+      Router.replace("/") // تحويل المستخدم إلى الصفحة الرئيسية
     } catch (error) {
       console.error("Logout failed:", error);
     }
