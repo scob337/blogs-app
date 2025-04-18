@@ -52,22 +52,19 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   // ✅ دالة تسجيل الدخول
   const login = (userData: User) => {
     setUser(userData);
+    router.push("/auth");
+
   };
   
-  useEffect(() => {
-    if (user) {
-      router.replace("/auth");
-    }
-  }, [user, router]);
+
   
 
   const logout = async () => {
     try {
       await fetch("/api/auth/logout", { method: "POST" });
-      // هنا ممكن تحذف الكوكيز أو أي شيء آخر حسب الحاجة
       
       setUser(null);
-      router.push("/") // تحويل المستخدم إلى الصفحة الرئيسية
+      router.push("/") 
     } catch (error) {
       console.error("Logout failed:", error);
     }
