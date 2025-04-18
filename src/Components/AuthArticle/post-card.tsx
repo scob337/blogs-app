@@ -48,8 +48,6 @@ export default function PostCard({ post }: Props) {
               </Link>
               <div className="flex items-center gap-2 text-sm text-gray-500">
                 <span>{formattedDate}</span>
-                <span>·</span>
-                <span>3 min read</span>
               </div>
             </div>
           </div>

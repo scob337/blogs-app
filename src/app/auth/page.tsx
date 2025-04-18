@@ -3,6 +3,7 @@
 import PostCard from '@/Components/AuthArticle/post-card'
 import React, { useEffect, useState } from 'react'
 import IPost  from './../../Types/PostTypes';
+import Loading from '@/Components/AuthArticle/Loading';
 
 
 const Articles = () => {
@@ -29,7 +30,7 @@ const Articles = () => {
   return (
     <div className="px-3 py-5">
       {loading ? (
-        <p className="text-center w-full py-10 text-gray-500">Loading...</p>
+        <Loading/>
       ) : (
         <div className="flex justify-between gap-3 flex-wrap">
           {posts.map((post , index) => (

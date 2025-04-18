@@ -2,11 +2,13 @@
 import Link from "next/link";
 import { useState } from "react";
 import Logo from "../Logo";
+
 const Links = [
   { id: 1, name: "Home", href: "/" },
   { id: 2, name: "About", href: "/about" },
-  { id: 3, name: "Write", href: "/articles" },
+  { id: 3, name: "Write", href: "/auth" },
 ];
+
 
 const UnAuthNavbar = () => {
   const [open, setOpen] = useState(false);
@@ -44,7 +46,6 @@ const UnAuthNavbar = () => {
             </button>
           </div>
 
-          {/* زر الهامبرجر لفتح القائمة في الموبايل */}
           <button
             onClick={() => setOpen(!open)}
             className="lg:hidden absolute right-4 top-1/2 -translate-y-1/2 px-3 py-2 rounded-lg
@@ -56,7 +57,6 @@ const UnAuthNavbar = () => {
             <span className="block h-[2px] w-[30px] bg-white my-[6px]"></span>
           </button>
 
-          {/* القائمة الجانبية في الموبايل */}
           {open && (
             <div className="absolute top-full right-4 w-[250px] bg-white shadow-lg rounded-lg px-6 py-5">
               <ul className="block space-y-4">
