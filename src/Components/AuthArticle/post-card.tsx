@@ -61,8 +61,10 @@ export default function PostCard({ post }: Props) {
             </motion.h2>
             
             <div 
-              className="text-gray-600 prose prose-sm max-w-none line-clamp-3 group-hover:text-gray-900 transition-colors"
-              dangerouslySetInnerHTML={{ __html: post.content }}
+              className="text-gray-600 prose prose-sm max-w-none line-clamp-3 group-hover:text-gray-900 transition-colors
+              flex 
+              "
+              dangerouslySetInnerHTML={{ __html: post.content.substring(0,25) + '...'}  }
             />
           </Link>
           

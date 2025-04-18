@@ -3,12 +3,10 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Search, Pencil, LogOut, Settings, BookOpen } from 'lucide-react';
+import { Pencil, LogOut, Settings, BookOpen } from 'lucide-react';
 import { useUser } from '../../../contexts/UserContext';
 import Logo from '../Logo';
 const AuthNav = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [showResults, setShowResults] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -42,28 +40,6 @@ logout()
             </Link>
           </div>
 
-          {/* Search Bar */}
-          <div className="relative w-40 sm:w-48 md:w-56 lg:w-64">
-            <input
-              type="text"
-              className="bg-gray-800 text-white w-full rounded-md pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="Search..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onFocus={() => setShowResults(true)}
-              onBlur={() => setTimeout(() => setShowResults(false), 200)}
-            />
-            <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-            
-            {/* Search Results */}
-            {showResults && searchQuery && (
-              <div className="absolute left-0 top-full w-full bg-white text-black rounded-md shadow-lg py-2 z-50">
-                <p className="px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer">Search Result 1</p>
-                <p className="px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer">Search Result 2</p>
-                <p className="px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer">Search Result 3</p>
-              </div>
-            )}
-          </div>
 
           {/* Profile & Actions */}
           <div className="flex items-center space-x-4">
