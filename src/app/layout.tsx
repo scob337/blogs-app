@@ -6,6 +6,7 @@ import Footer from "@/Components/Footer/Footer"; // Ensure this path is correct 
 import { SessionProvider } from "next-auth/react";
 import { UserProvider, useUser } from "../../contexts/UserContext";
 import Loading from "@/Components/Loading";
+import { useRedirectBasedOnUser } from "../../contexts/useRedirectBasedOnUser";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -37,7 +38,7 @@ export default function RootLayout({
 
 function MainLayout({ children }: { children: React.ReactNode }) {
   const { user, loading } = useUser();
-
+  useRedirectBasedOnUser({ check: "auth", redirectIfNotAuthenticated: "/login" });
   if (loading) return <Loading />;
 
   return (
