@@ -28,7 +28,7 @@ const UserContext = createContext<UserContextType>({
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const Router = useRouter()
+  const router = useRouter()
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -52,8 +52,14 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   // ✅ دالة تسجيل الدخول
   const login = (userData: User) => {
     setUser(userData);
-    Router.push("/auth")
   };
+  
+  useEffect(() => {
+    if (user) {
+      router.push("/auth");
+    }
+  }, [user, router]);
+  
 
   const logout = async () => {
     try {
@@ -61,7 +67,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
       // هنا ممكن تحذف الكوكيز أو أي شيء آخر حسب الحاجة
       
       setUser(null);
-      Router.push("/") // تحويل المستخدم إلى الصفحة الرئيسية
+      router.push("/") // تحويل المستخدم إلى الصفحة الرئيسية
     } catch (error) {
       console.error("Logout failed:", error);
     }
