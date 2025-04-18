@@ -2,7 +2,6 @@
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { FORMAT_TEXT_COMMAND } from "lexical";
 import { Button } from "@mantine/core";
-
 export default function ToolbarPlugin() {
   const [editor] = useLexicalComposerContext();
 

@@ -2,7 +2,7 @@ import Image from "next/image"
 import Link from "next/link"
 import IPost from './../../Types/PostTypes'
 import { motion } from 'framer-motion';
-
+import Nopic from '../../../public/photo.png'
 interface Props {
   post: IPost
 }
@@ -31,7 +31,7 @@ export default function PostCard({ post }: Props) {
                 className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden cursor-pointer"
               >
                 <Image 
-                  src={post.author?.img || "/placeholder-avatar.png"} 
+                  src={post.author?.img || Nopic} 
                   alt="author" 
                   width={40} 
                   height={40}
@@ -54,7 +54,7 @@ export default function PostCard({ post }: Props) {
             </div>
           </div>
           
-          <Link href={`auth/posts/${post.id}`} className="block group">
+          <Link href={`auth/articles/${post.id}`} className="block group">
             <motion.h2 
               whileHover={{ x: 5 }}
               className="text-2xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors"
@@ -73,7 +73,7 @@ export default function PostCard({ post }: Props) {
               {post.category || 'General'}
             </span>
             <Link 
-              href={`auth/posts/${post.id}`}
+              href={`auth/articles/${post.id}`}
               className="text-blue-600 text-sm font-medium hover:text-blue-700"
             >
               Read more
@@ -82,7 +82,7 @@ export default function PostCard({ post }: Props) {
         </div>
         
         {post.thumbnail && (
-          <Link href={`auth/posts/${post.id}`} className="block">
+          <Link href={`auth/articles/${post.id}`} className="block">
             <motion.div 
               whileHover={{ scale: 1.05 }}
               className="w-48 h-48 relative rounded-lg overflow-hidden"
