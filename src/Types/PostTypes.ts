@@ -1,5 +1,5 @@
  interface IPost {
-    _id: string
+    id: string
     title: string
     content: string
     thumbnail: string

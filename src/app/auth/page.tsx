@@ -15,6 +15,7 @@ const Articles = () => {
         const response = await fetch(`${window.location.origin}/api/posts`)
         const data = await response.json()
         setPosts(data)
+        console.log(data)
         setLoading(false)
       } catch (error) {
         console.error('Error fetching posts:', error)

@@ -8,5 +8,6 @@ export default function AuthLayout({
     return <>
         <AuthNav/>
         {children}
+        
         </>
   }

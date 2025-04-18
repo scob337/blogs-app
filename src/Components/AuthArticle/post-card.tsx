@@ -1,4 +1,5 @@
 import Image from "next/image"
+import Link from "next/link"
 import IPost from './../../Types/PostTypes'
 import { motion } from 'framer-motion';
 
@@ -19,25 +20,32 @@ export default function PostCard({ post }: Props) {
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ scale: 1.02 }}
       transition={{ duration: 0.3 }}
-      className="w-full max-w-2xl bg-white rounded-xl p-6 mb-6 hover:shadow-xl transition-shadow"
+      className="w-full max-w-2xl bg-gradient-to-br from-white via-white to-gray-50 rounded-xl p-6 mb-6 hover:shadow-xl transition-shadow border border-gray-100/20 backdrop-blur-sm"
     >
       <div className="flex gap-6">
         <div className="flex-1 space-y-4">
           <div className="flex items-center gap-3">
-            <motion.div 
-              whileHover={{ scale: 1.1 }}
-              className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden"
-            >
-              <Image 
-                src={post.author?.img || "/placeholder-avatar.png"} 
-                alt="author" 
-                width={40} 
-                height={40}
-                className="object-cover"
-              />
-            </motion.div>
+            <Link href={`/author/${post.authorId}`}>
+              <motion.div 
+                whileHover={{ scale: 1.1 }}
+                className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden cursor-pointer"
+              >
+                <Image 
+                  src={post.author?.img || "/placeholder-avatar.png"} 
+                  alt="author" 
+                  width={40} 
+                  height={40}
+                  className="object-cover"
+                />
+              </motion.div>
+            </Link>
             <div>
-              <span className="text-sm font-medium text-gray-700">{post.author?.fName || 'Anonymous'}</span>
+              <Link 
+                href={`/author/${post.authorId}`}
+                className="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors"
+              >
+                {post.author?.fName || 'Anonymous'}
+              </Link>
               <div className="flex items-center gap-2 text-sm text-gray-500">
                 <span>{formattedDate}</span>
                 <span>·</span>
@@ -46,44 +54,47 @@ export default function PostCard({ post }: Props) {
             </div>
           </div>
           
-          <motion.h2 
-            whileHover={{ x: 5 }}
-            className="text-2xl font-bold text-gray-900"
-          >
-            {post.title}
-          </motion.h2>
-          
-          <div 
-            className="text-gray-600 prose prose-sm max-w-none line-clamp-3"
-            dangerouslySetInnerHTML={{ __html: post.content }}
-          />
+          <Link href={`auth/posts/${post.id}`} className="block group">
+            <motion.h2 
+              whileHover={{ x: 5 }}
+              className="text-2xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors"
+            >
+              {post.title}
+            </motion.h2>
+            
+            <div 
+              className="text-gray-600 prose prose-sm max-w-none line-clamp-3 group-hover:text-gray-900 transition-colors"
+              dangerouslySetInnerHTML={{ __html: post.content }}
+            />
+          </Link>
           
           <div className="flex items-center gap-3 pt-4 border-t border-gray-100">
-            <span className="px-3 py-1 bg-gray-100 rounded-full text-sm text-gray-600">
+            <span className="px-3 py-1 bg-white/80 border border-gray-100 rounded-full text-sm text-gray-600 shadow-sm">
               {post.category || 'General'}
             </span>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+            <Link 
+              href={`auth/posts/${post.id}`}
               className="text-blue-600 text-sm font-medium hover:text-blue-700"
             >
               Read more
-            </motion.button>
+            </Link>
           </div>
         </div>
         
         {post.thumbnail && (
-          <motion.div 
-            whileHover={{ scale: 1.05 }}
-            className="w-48 h-48 relative rounded-lg overflow-hidden"
-          >
-            <Image
-              src={post.thumbnail}
-              alt={post.title}
-              fill
-              className="object-cover"
-            />
-          </motion.div>
+          <Link href={`auth/posts/${post.id}`} className="block">
+            <motion.div 
+              whileHover={{ scale: 1.05 }}
+              className="w-48 h-48 relative rounded-lg overflow-hidden"
+            >
+              <Image
+                src={post.thumbnail}
+                alt={post.title}
+                fill
+                className="object-cover"
+              />
+            </motion.div>
+          </Link>
         )}
       </div>
     </motion.div>
