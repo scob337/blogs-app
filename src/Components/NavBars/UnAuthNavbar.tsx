@@ -18,7 +18,9 @@ const UnAuthNavbar = () => {
       <div className="container mx-auto w-full">
         <div className="relative flex items-center justify-between px-5 w-full">
           <div className="w-[10%] flex justify-end px-4">
+            <Link href="/">
           <Logo/>
+          </Link>
           </div>
           <nav className="hidden lg:flex w-[50%] justify-center">
             <ul className="flex space-x-8">
