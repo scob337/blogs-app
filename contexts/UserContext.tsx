@@ -56,7 +56,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   
   useEffect(() => {
     if (user) {
-      router.push("/auth");
+      router.replace("/auth");
     }
   }, [user, router]);
   
