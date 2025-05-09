@@ -10,6 +10,7 @@ import CommentSection from '@/Components/Comments/CommentSection'
 import { FaHeart, FaRegHeart } from 'react-icons/fa'
 import { useUser } from '../../../../../contexts/UserContext'
 import toast, { Toaster } from 'react-hot-toast'
+import ILike from '@/Types/LikeTypes';
 
 export default function ArticlePage() {
   const { id } = useParams()
@@ -43,24 +44,18 @@ export default function ArticlePage() {
           
           if (user) {
             // تعديل التحقق من الإعجاب ليشمل جميع الأشكال المحتملة
-            const userLiked = likesArray.some((like: any) => {
+            const userLiked = likesArray.some((like: ILike) => {
               console.log("Checking like:", like, "User ID:", user.id);
               
-              // إذا كان الإعجاب مجرد معرف المستخدم (سترينج)
               if (typeof like === 'string') {
                 return like === user.id;
               }
               
-              // إذا كان الإعجاب كائن به معرف المستخدم
-              if (typeof like === 'object' && like !== null) {
-                return (
-                  like.userId === user.id || 
-                  like.id === user.id || 
-                  (like.user && like.user.id === user.id)
-                );
-              }
-              
-              return false;
+              return (
+                like.userId === user.id || 
+                like.id === user.id || 
+                (like.user && like.user.id === user.id)
+              );
             });
             
             console.log("User liked post:", userLiked);
