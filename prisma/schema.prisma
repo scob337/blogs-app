@@ -45,18 +45,15 @@ model Comment {
 }
 
 model Like {
-  id     String @id @default(auto()) @map("_id") @db.ObjectId
-  userId String @db.ObjectId
-  user   User   @relation(fields: [userId], references: [id])
-
-  postId String? @db.ObjectId
-  post   Post?   @relation(fields: [postId], references: [id])
-
-  commentId String?  @db.ObjectId
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  postId    String   @db.ObjectId
+  commentId String?  @db.ObjectId  // Optional field
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  post      Post     @relation(fields: [postId], references: [id])
   comment   Comment? @relation(fields: [commentId], references: [id])
 
-  createdAt DateTime @default(now())
-
-  @@unique([userId, postId])
-  @@unique([userId, commentId])
+  // Create a compound unique constraint that handles null values correctly
+  @@unique([userId, postId, commentId], name: "like_unique_constraint")
 }

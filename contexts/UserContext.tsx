@@ -52,10 +52,11 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   // ✅ دالة تسجيل الدخول
   const login = (userData: User) => {
     setUser(userData);
-    router.push("/auth");
-
+    setTimeout(() => {
+      router.push("/auth");
+    }, 100);
   };
-  
+
 
   
 

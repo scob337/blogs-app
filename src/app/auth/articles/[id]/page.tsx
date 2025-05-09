@@ -6,19 +6,26 @@ import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import IPost from '@/Types/PostTypes'
 import Loading from '@/Components/AuthArticle/ArticleLoading'
+import CommentSection from '@/Components/Comments/CommentSection'
+import { FaHeart, FaRegHeart } from 'react-icons/fa'
+import { useUser } from '../../../../../contexts/UserContext'
+import toast, { Toaster } from 'react-hot-toast'
 
 export default function ArticlePage() {
   const { id } = useParams()
   const [post, setPost] = useState<IPost | null>(null)
   const [relatedPosts, setRelatedPosts] = useState<IPost[]>([])
   const [loading, setLoading] = useState(true)
+  const [liked, setLiked] = useState(false)
+  const [likeCount, setLikeCount] = useState(0)
+  const { user } = useUser()
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const [postResponse, relatedResponse] = await Promise.all([
-          fetch(`${window.location.origin}/api/posts/${id}`),
-          fetch(`${window.location.origin}/api/posts`)
+          fetch(`/api/posts/${id}`),
+          fetch(`/api/posts`)
         ])
         
         const [postData, relatedData] = await Promise.all([
@@ -28,6 +35,39 @@ export default function ArticlePage() {
 
         setPost(postData)
         setRelatedPosts(relatedData.filter((p: IPost) => p.id !== id).slice(0, 3))
+        
+        // تحسين التعامل مع أنواع البيانات المختلفة للإعجابات
+        if (postData.likes) {
+          const likesArray = Array.isArray(postData.likes) ? postData.likes : [];
+          setLikeCount(likesArray.length)
+          
+          if (user) {
+            // تعديل التحقق من الإعجاب ليشمل جميع الأشكال المحتملة
+            const userLiked = likesArray.some((like: any) => {
+              console.log("Checking like:", like, "User ID:", user.id);
+              
+              // إذا كان الإعجاب مجرد معرف المستخدم (سترينج)
+              if (typeof like === 'string') {
+                return like === user.id;
+              }
+              
+              // إذا كان الإعجاب كائن به معرف المستخدم
+              if (typeof like === 'object' && like !== null) {
+                return (
+                  like.userId === user.id || 
+                  like.id === user.id || 
+                  (like.user && like.user.id === user.id)
+                );
+              }
+              
+              return false;
+            });
+            
+            console.log("User liked post:", userLiked);
+            setLiked(userLiked);
+          }
+        }
+        
         setLoading(false)
       } catch (error) {
         console.error('Error fetching data:', error)
@@ -36,7 +76,68 @@ export default function ArticlePage() {
     }
 
     fetchData()
-  }, [id])
+  }, [id, user])
+
+  const handleLike = async () => {
+    if (!user) {
+      toast.error('Please login to like this article', {
+        position: 'bottom-right',
+      })
+      return
+    }
+    
+    // تحديث واجهة المستخدم بشكل متفائل
+    const wasLiked = liked
+    setLiked(!liked)
+    setLikeCount(prev => liked ? prev - 1 : prev + 1)
+    
+    try {
+      console.log("Sending like request for post:", id, "User:", user.id);
+      
+      // Get token from cookies
+      const cookies = document.cookie.split(';');
+      const tokenCookie = cookies.find(cookie => cookie.trim().startsWith('token='));
+      const token = tokenCookie ? tokenCookie.split('=')[1].trim() : null;
+      
+      const response = await fetch(`/api/posts/${id}/like`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          postId: id,
+          userId: user.id,
+          commentId: null  // Explicitly set commentId to null for post likes
+        })
+      });
+      
+      console.log("Like response status:", response.status);
+      
+      if (!response.ok) {
+        // التراجع عن التحديث المتفائل إذا فشل الطلب
+        setLiked(wasLiked)
+        setLikeCount(prev => wasLiked ? prev + 1 : prev - 1)
+        
+        const errorData = await response.text();
+        console.error('Like error response:', errorData);
+        
+        throw new Error(`Failed to update like: ${response.status} ${errorData}`)
+      }
+      
+      // رسالة نجاح
+      toast.success(liked ? 'Like removed' : 'Article liked!', {
+        position: 'bottom-right',
+        duration: 2000,
+      })
+      
+    } catch (error) {
+      console.error('Error liking post:', error)
+      toast.error('Failed to update like. Please try again.', {
+        position: 'bottom-right',
+      })
+    }
+  }
 
   if (loading || !post) {
     return <Loading />
@@ -44,6 +145,8 @@ export default function ArticlePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
+      <Toaster />
+      
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
         <div className="flex gap-8">
           {/* Main Content */}
@@ -105,9 +208,25 @@ export default function ArticlePage() {
                     </span>
                   )}
                 </div>
-
+                
+                <div className="flex items-center gap-6">
+                  <button 
+                    onClick={handleLike}
+                    className="flex items-center gap-1 text-gray-500 hover:text-red-500 transition-colors"
+                  >
+                    {liked ? (
+                      <FaHeart className="text-red-500" />
+                    ) : (
+                      <FaRegHeart />
+                    )}
+                    <span>{likeCount}</span>
+                  </button>
+                </div>
               </div>
             </div>
+            
+            {/* استخدام مكون التعليقات */}
+            <CommentSection postId={id as string} />
           </div>
 
           {/* Related Articles Aside */}

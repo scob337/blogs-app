@@ -2,6 +2,3 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
-.fr-second-toolbar{
-    display:none !important;
-}

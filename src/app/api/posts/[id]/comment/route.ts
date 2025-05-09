@@ -16,8 +16,58 @@ interface CommentRequestBody {
   content: string;
 }
 
+// إضافة دالة GET للسماح لأي شخص بمشاهدة التعليقات
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+): Promise<NextResponse> {
+  const { id: postId } = await params;
 
+  try {
+    console.log("🔍 Fetching comments for Post ID:", postId);
 
+    if (!postId) {
+      console.error("❌ Invalid Post ID!");
+      return NextResponse.json({ error: "Invalid Post ID" }, { status: 400 });
+    }
+
+    // جلب التعليقات مع معلومات المستخدم
+    const comments = await prisma.comment.findMany({
+      where: {
+        postId: postId,
+      },
+      orderBy: {
+        createdAt: 'desc', // ترتيب التعليقات من الأحدث للأقدم
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            fName: true,
+            img: true,
+          },
+        },
+      },
+    });
+
+    // تنسيق البيانات لتكون أكثر ملاءمة للواجهة
+    const formattedComments = comments.map(comment => ({
+      id: comment.id,
+      content: comment.content,
+      authorId: comment.userId,
+      author: {
+        fName: comment.user?.fName || "Anonymous",
+        img: comment.user?.img || "/placeholder-avatar.png"
+      },
+      createdAt: comment.createdAt.toISOString()
+    }));
+
+    return NextResponse.json(formattedComments);
+  } catch (error) {
+    console.error("❌ Error fetching comments:", error);
+    return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
+  }
+}
 
 export async function POST(
   request: NextRequest,
