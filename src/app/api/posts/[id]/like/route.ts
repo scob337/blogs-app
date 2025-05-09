@@ -124,8 +124,13 @@ export async function POST(
         action: "added"
       });
     } catch (error) {
-      // التعامل مع خطأ القيد الفريد
-      if (error.code === 'P2002') {
+      // Type guard for Prisma error
+      if (
+        error && 
+        typeof error === 'object' && 
+        'code' in error && 
+        error.code === 'P2002'
+      ) {
         console.log("⚠️ Unique constraint violation - like already exists");
         // محاولة تحديث اللايك بدلاً من إنشائه
         const updatedLike = await prisma.like.upsert({
@@ -135,7 +140,7 @@ export async function POST(
               postId
             }
           },
-          update: {}, // لا تحديثات ضرورية
+          update: {}, 
           create: { 
             userId: user.id, 
             postId,
@@ -149,7 +154,10 @@ export async function POST(
           action: "added"
         });
       }
-      throw error; // إعادة رمي الخطأ إذا كان من نوع آخر
+
+      // Log the error and return generic error response
+      console.error("❌ Error adding/removing like:", error);
+      return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
     }
   } catch (error) {
     console.error("❌ Error adding/removing like:", error);
