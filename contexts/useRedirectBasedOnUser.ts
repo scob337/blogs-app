@@ -16,14 +16,17 @@ export const useRedirectBasedOnUser = ({
   const { user, loading } = useUser();
   const router = useRouter();
 
-  // ✅ بيسمع التغيرات على المستخدم
+  // ✅ تحسين الاستماع للتغيرات على المستخدم
   useEffect(() => {
-    if (loading) return;
-
-    if (check === "auth" && !user) {
-      router.push(redirectIfNotAuthenticated);
-    } else if (check === "guest" && user) {
-      router.push(redirectIfAuthenticated);
+    // إذا كان التحميل قد انتهى، نقوم بالتوجيه بناءً على حالة المستخدم
+    if (!loading) {
+      if (check === "auth" && !user) {
+        console.log("Redirecting to:", redirectIfNotAuthenticated);
+        router.replace(redirectIfNotAuthenticated);
+      } else if (check === "guest" && user) {
+        console.log("Redirecting to:", redirectIfAuthenticated);
+        router.replace(redirectIfAuthenticated);
+      }
     }
-  }, [user, loading , router, check, redirectIfAuthenticated, redirectIfNotAuthenticated]); 
+  }, [user, loading, router, check, redirectIfAuthenticated, redirectIfNotAuthenticated]); 
 };

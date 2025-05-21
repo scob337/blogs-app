@@ -32,8 +32,12 @@ export async function GET(
       },
     });
 
+    // استخراج معرفات المستخدمين الذين قاموا بالإعجاب
+    const likerIds = likes.map(like => like.userId);
+
     return NextResponse.json({
       likes,
+      likerIds, // إضافة قائمة معرفات المستخدمين
       count: likes.length,
     });
   } catch (error) {

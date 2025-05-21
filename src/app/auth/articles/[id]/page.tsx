@@ -21,70 +21,63 @@ export default function ArticlePage() {
   const [likeCount, setLikeCount] = useState(0)
   const { user } = useUser()
 
+  // تحسين وظيفة التحميل الأولي للتحقق من اللايكات
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [postResponse, relatedResponse] = await Promise.all([
+        // تحميل بيانات المقال والمقالات ذات الصلة
+        const [postResponse, relatedResponse, likesResponse] = await Promise.all([
           fetch(`/api/posts/${id}`),
-          fetch(`/api/posts`)
-        ])
+          fetch(`/api/posts`),
+          fetch(`/api/posts/${id}/like`)
+        ]);
         
-        const [postData, relatedData] = await Promise.all([
+        const [postData, relatedData, likesData] = await Promise.all([
           postResponse.json(),
-          relatedResponse.json()
-        ])
+          relatedResponse.json(),
+          likesResponse.json()
+        ]);
 
-        setPost(postData)
-        setRelatedPosts(relatedData.filter((p: IPost) => p.id !== id).slice(0, 3))
+        setPost(postData);
+        setRelatedPosts(relatedData.filter((p: IPost) => p.id !== id).slice(0, 3));
         
-        // تحسين التعامل مع أنواع البيانات المختلفة للإعجابات
-        if (postData.likes) {
-          const likesArray = Array.isArray(postData.likes) ? postData.likes : [];
-          setLikeCount(likesArray.length)
-          
-          if (user) {
-            // تعديل التحقق من الإعجاب ليشمل جميع الأشكال المحتملة
-            const userLiked = likesArray.some((like: ILike) => {
-              console.log("Checking like:", like, "User ID:", user.id);
-              
-              if (typeof like === 'string') {
-                return like === user.id;
-              }
-              
-              return (
-                like.userId === user.id || 
-                like.id === user.id || 
-                (like.user && like.user.id === user.id)
-              );
-            });
-            
-            console.log("User liked post:", userLiked);
-            setLiked(userLiked);
-          }
+        // تحديث عدد اللايكات من API المخصص
+        setLikeCount(likesData.count || 0);
+        
+        // التحقق مما إذا كان المستخدم قد أعجب بالمقال
+        if (user) {
+          const userLiked = likesData.likerIds?.includes(user.id) || 
+                           likesData.likes.some((like: ILike) => {
+                             if (typeof like === 'string') return like === user.id;
+                             return like.userId === user.id || 
+                                   (like.user && like.user.id === user.id);
+                           });
+          setLiked(userLiked);
         }
         
-        setLoading(false)
+        setLoading(false);
       } catch (error) {
-        console.error('Error fetching data:', error)
-        setLoading(false)
+        console.error('Error fetching data:', error);
+        setLoading(false);
       }
-    }
+    };
 
-    fetchData()
-  }, [id, user])
+    fetchData();
+  }, [id, user]);
 
+  // تصحيح وظيفة اللايك
   const handleLike = async () => {
     if (!user) {
       toast.error('Please login to like this article', {
         position: 'bottom-right',
-      })
-      return
+      });
+      return;
     }
     
     // تحديث واجهة المستخدم بشكل متفائل
-    const wasLiked = liked
-    setLiked(!liked)
-    setLikeCount(prev => liked ? prev - 1 : prev + 1)
+    const wasLiked = liked;
+    setLiked(!wasLiked);
+    setLikeCount(prev => wasLiked ? prev - 1 : prev + 1);
     
     try {
       console.log("Sending like request for post:", id, "User:", user.id);
@@ -103,7 +96,7 @@ export default function ArticlePage() {
         body: JSON.stringify({
           postId: id,
           userId: user.id,
-          commentId: null  // Explicitly set commentId to null for post likes
+          commentId: null
         })
       });
       
@@ -111,26 +104,43 @@ export default function ArticlePage() {
       
       if (!response.ok) {
         // التراجع عن التحديث المتفائل إذا فشل الطلب
-        setLiked(wasLiked)
-        setLikeCount(prev => wasLiked ? prev + 1 : prev - 1)
+        setLiked(wasLiked);
+        setLikeCount(prev => wasLiked ? prev + 1 : prev - 1);
         
         const errorData = await response.text();
         console.error('Like error response:', errorData);
         
-        throw new Error(`Failed to update like: ${response.status} ${errorData}`)
+        throw new Error(`Failed to update like: ${response.status} ${errorData}`);
+      }
+      
+      // استخدام API اللايك المخصص للحصول على معلومات محدثة
+      const likesResponse = await fetch(`/api/posts/${id}/like`);
+      const likesData = await likesResponse.json();
+      
+      // تحديث عدد اللايكات وحالة اللايك للمستخدم الحالي
+      setLikeCount(likesData.count || 0);
+      
+      if (user) {
+        const userLiked = likesData.likerIds?.includes(user.id) || 
+                          likesData.likes.some((like: ILike) => {
+                            if (typeof like === 'string') return like === user.id;
+                            return like.userId === user.id || 
+                                  (like.user && like.user.id === user.id);
+                          });
+        setLiked(userLiked);
       }
       
       // رسالة نجاح
-      toast.success(liked ? 'Like removed' : 'Article liked!', {
+      toast.success(wasLiked ? 'Like removed' : 'Article liked!', {
         position: 'bottom-right',
         duration: 2000,
-      })
+      });
       
     } catch (error) {
-      console.error('Error liking post:', error)
+      console.error('Error liking post:', error);
       toast.error('Failed to update like. Please try again.', {
         position: 'bottom-right',
-      })
+      });
     }
   }
 
@@ -150,14 +160,14 @@ export default function ArticlePage() {
             <div className="mb-8">
               <h1 className="text-4xl font-bold text-gray-900 mb-4">{post.title}</h1>
               <div className="flex items-center gap-4 mb-6">
-                <div className="flex items-center gap-2">
-                  <div className="w-10 h-10 rounded-full overflow-hidden">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-blue-100 shadow-sm">
                     <Image
                       src={post.author?.img || "/placeholder-avatar.png"}
                       alt={post.author?.fName || "Author"}
-                      width={40}
-                      height={40}
-                      className="object-contain"
+                      width={48}
+                      height={48}
+                      className="object-cover"
                     />
                   </div>
                   <div>
@@ -208,13 +218,14 @@ export default function ArticlePage() {
                   <button 
                     onClick={handleLike}
                     className="flex items-center gap-1 text-gray-500 hover:text-red-500 transition-colors"
+                    aria-label={liked ? "Remove like" : "Like this article"}
                   >
                     {liked ? (
-                      <FaHeart className="text-red-500" />
+                      <FaHeart className="text-red-500" size={20} />
                     ) : (
-                      <FaRegHeart />
+                      <FaRegHeart size={20} />
                     )}
-                    <span>{likeCount}</span>
+                    <span className="ml-1 font-medium">{likeCount}</span>
                   </button>
                 </div>
               </div>
