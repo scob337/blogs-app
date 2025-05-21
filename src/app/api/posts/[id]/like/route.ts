@@ -3,6 +3,7 @@ import { PrismaClient } from "@prisma/client";
 import { ObjectId } from "mongodb";
 import * as cookie from "cookie";
 import { verifyToken } from "../../../../../../utils/auth";
+import { Prisma } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -114,7 +115,7 @@ export async function POST(
         data: { 
           userId: user.id, 
           postId,
-          commentId: null // إضافة قيمة صريحة للـ commentId
+          commentId: null
         },
       });
 
@@ -123,41 +124,33 @@ export async function POST(
         like: newLike,
         action: "added"
       });
-    } catch (error) {
-      // Type guard for Prisma error
-      if (
-        error && 
-        typeof error === 'object' && 
-        'code' in error && 
-        error.code === 'P2002'
-      ) {
+    } catch (error: unknown) {
+      // التعامل مع خطأ القيد الفريد
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
         console.log("⚠️ Unique constraint violation - like already exists");
         // محاولة تحديث اللايك بدلاً من إنشائه
-        const updatedLike = await prisma.like.upsert({
+        const updatedLike = await prisma.like.findFirst({
           where: {
-            userId_postId: {
-              userId: user.id,
-              postId
-            }
-          },
-          update: {}, 
-          create: { 
-            userId: user.id, 
-            postId,
-            commentId: null 
+            AND: [
+              { userId: user.id },
+              { postId },
+              { commentId: null }
+            ]
           }
         });
         
+        if (updatedLike) {
+          await prisma.like.delete({
+            where: { id: updatedLike.id }
+          });
+        }
+        
         return NextResponse.json({ 
-          message: "Post liked successfully (upsert)", 
-          like: updatedLike,
-          action: "added"
+          message: "Like status updated", 
+          action: "removed"
         });
       }
-
-      // Log the error and return generic error response
-      console.error("❌ Error adding/removing like:", error);
-      return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
+      throw error;
     }
   } catch (error) {
     console.error("❌ Error adding/removing like:", error);
