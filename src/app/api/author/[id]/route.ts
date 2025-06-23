@@ -3,11 +3,10 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-type Context = {
-  params: Record<string, string>;
-};
-
-export async function GET(req: NextRequest, context: Context) {
+export async function GET(
+  req: NextRequest,
+  context: { params: Record<string, string> }
+) {
   try {
     const { id } = context.params;
 
