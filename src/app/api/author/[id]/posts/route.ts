@@ -6,8 +6,8 @@ const prisma = new PrismaClient();
 // جلب مقالات المؤلف
 export async function GET(
   req: NextRequest,
-  context: { params: { id: string } }
-): Promise<NextResponse> {
+  context: { params: Record<string, string> }
+) {
   try {
     const { id } = context.params;
 
