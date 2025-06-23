@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
-import { FaRegComment } from 'react-icons/fa'
+import { FaRegComment, FaHeart, FaRegHeart } from 'react-icons/fa'
 import { useUser } from '../../../contexts/UserContext'
 import toast, { Toaster } from 'react-hot-toast'
+import ILike from '@/Types/LikeTypes'
 
 // واجهة التعليق
 interface Comment {
@@ -16,6 +17,8 @@ interface Comment {
     img: string;
   };
   createdAt: string;
+  likes?: ILike[];
+  likeCount?: number;
 }
 
 interface CommentSectionProps {
@@ -27,6 +30,7 @@ export default function CommentSection({ postId }: CommentSectionProps) {
   const [commentText, setCommentText] = useState('')
   const [submittingComment, setSubmittingComment] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [likedComments, setLikedComments] = useState<Record<string, boolean>>({})
   const { user } = useUser()
 
   // جلب التعليقات
@@ -48,15 +52,45 @@ export default function CommentSection({ postId }: CommentSectionProps) {
             console.log('Parsed comments data:', data)
             
             // التحقق من شكل البيانات المستلمة
+            let commentsData = [];
             if (Array.isArray(data)) {
-              setComments(data)
+              commentsData = data;
             } else if (data.comments && Array.isArray(data.comments)) {
               // في حالة كانت البيانات مغلفة في كائن
-              setComments(data.comments)
+              commentsData = data.comments;
             } else {
               console.error('Unexpected comments data format:', data)
-              setComments([])
+              commentsData = [];
             }
+            
+            // جلب عدد الإعجابات لكل تعليق
+            const commentsWithLikes = await Promise.all(commentsData.map(async (comment: Comment) => {
+              try {
+                const likesResponse = await fetch(`/api/comments/${comment.id}/like`);
+                if (likesResponse.ok) {
+                  const likesData = await likesResponse.json();
+                  comment.likeCount = likesData.count || 0;
+                  
+                  // التحقق مما إذا كان المستخدم قد أعجب بالتعليق
+                  if (user) {
+                    const userLiked = likesData.likerIds?.includes(user.id) || 
+                                    likesData.likes.some((like: ILike) => {
+                                      if (typeof like === 'string') return like === user.id;
+                                      return like.userId === user.id || 
+                                            (like.user && like.user.id === user.id);
+                                    });
+                    setLikedComments(prev => ({ ...prev, [comment.id]: userLiked }));
+                  }
+                }
+                return comment;
+              } catch (error) {
+                console.error(`Error fetching likes for comment ${comment.id}:`, error);
+                comment.likeCount = 0;
+                return comment;
+              }
+            }));
+            
+            setComments(commentsWithLikes);
           } catch (parseError) {
             console.error('Error parsing JSON:', parseError)
             setComments([])
@@ -157,6 +191,82 @@ export default function CommentSection({ postId }: CommentSectionProps) {
     }
   }
 
+  // إضافة وظيفة التعامل مع الإعجاب بالتعليق
+  const handleCommentLike = async (commentId: string) => {
+    if (!user) {
+      toast.error('Please login to like comments', {
+        position: 'bottom-right',
+      });
+      return;
+    }
+    
+    // تحديث واجهة المستخدم بشكل متفائل
+    const wasLiked = likedComments[commentId] || false;
+    setLikedComments(prev => ({ ...prev, [commentId]: !wasLiked }));
+    setComments(prev => 
+      prev.map(comment => 
+        comment.id === commentId 
+          ? { ...comment, likeCount: (comment.likeCount || 0) + (wasLiked ? -1 : 1) }
+          : comment
+      )
+    );
+    
+    try {
+      console.log("Sending like request for comment:", commentId, "User:", user.id);
+      
+      const response = await fetch(`/api/comments/${commentId}/like`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      console.log("Like response status:", response.status);
+      
+      if (!response.ok) {
+        // التراجع عن التحديث المتفائل إذا فشل الطلب
+        setLikedComments(prev => ({ ...prev, [commentId]: wasLiked }));
+        setComments(prev => 
+          prev.map(comment => 
+            comment.id === commentId 
+              ? { ...comment, likeCount: (comment.likeCount || 0) + (wasLiked ? 1 : -1) }
+              : comment
+          )
+        );
+        
+        const errorData = await response.text();
+        console.error('Like error response:', errorData);
+        
+        throw new Error(`Failed to update like: ${response.status} ${errorData}`);
+      }
+      
+      // استخدام API اللايك المخصص للحصول على معلومات محدثة
+      const likesResponse = await fetch(`/api/comments/${commentId}/like`);
+      const likesData = await likesResponse.json();
+      
+      // تحديث عدد اللايكات للتعليق
+      setComments(prev => 
+        prev.map(comment => 
+          comment.id === commentId 
+            ? { ...comment, likeCount: likesData.count || 0 }
+            : comment
+        )
+      );
+      
+      // رسالة نجاح
+      toast.success(wasLiked ? 'Like removed' : 'Comment liked!', {
+        position: 'bottom-right',
+        duration: 2000,
+      });
+      
+    } catch (error) {
+      console.error('Error liking comment:', error);
+      toast.error('Failed to update like. Please try again.', {
+        position: 'bottom-right',
+      });
+    }
+  };
+
   return (
     <div className="mt-10">
       <Toaster />
@@ -233,6 +343,22 @@ export default function CommentSection({ postId }: CommentSectionProps) {
                     </span>
                   </div>
                   <p className="text-gray-700">{comment.content}</p>
+                  
+                  {/* إضافة زر الإعجاب للتعليق */}
+                  <div className="mt-3 flex justify-end">
+                    <button 
+                      onClick={() => handleCommentLike(comment.id)}
+                      className="flex items-center gap-1 text-gray-500 hover:text-red-500 transition-colors"
+                      aria-label={likedComments[comment.id] ? "Remove like" : "Like this comment"}
+                    >
+                      {likedComments[comment.id] ? (
+                        <FaHeart className="text-red-500" size={16} />
+                      ) : (
+                        <FaRegHeart size={16} />
+                      )}
+                      <span className="ml-1 text-sm">{comment.likeCount || 0}</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

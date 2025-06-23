@@ -9,6 +9,7 @@ interface User {
   lName: string;
   email: string;
   img: string;
+  bio:string;
 }
 
 interface UserContextType {
@@ -52,9 +53,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   // ✅ دالة تسجيل الدخول
   const login = (userData: User) => {
     setUser(userData);
-    setTimeout(() => {
-      router.push("/auth");
-    }, 100);
+    router.push("/auth");
   };
 
 

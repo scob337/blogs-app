@@ -31,7 +31,7 @@ export async function GET(
       return NextResponse.json({ error: "Invalid Post ID" }, { status: 400 });
     }
 
-    // جلب التعليقات مع معلومات المستخدم
+    // جلب التعليقات مع معلومات المستخدم والإعجابات
     const comments = await prisma.comment.findMany({
       where: {
         postId: postId,
@@ -47,6 +47,7 @@ export async function GET(
             img: true,
           },
         },
+        likes: true, // إضافة الإعجابات
       },
     });
 
@@ -59,7 +60,8 @@ export async function GET(
         fName: comment.user?.fName || "Anonymous",
         img: comment.user?.img || "/placeholder-avatar.png"
       },
-      createdAt: comment.createdAt.toISOString()
+      createdAt: comment.createdAt.toISOString(),
+      likeCount: comment.likes.length // إضافة عدد الإعجابات
     }));
 
     return NextResponse.json(formattedComments);
