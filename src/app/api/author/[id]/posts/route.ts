@@ -4,7 +4,7 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 // جلب مقالات المؤلف
-export async function GET(
+export const Get = async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
 ): Promise<NextResponse> {
