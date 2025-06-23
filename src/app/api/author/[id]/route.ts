@@ -1,38 +1,32 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { NextRequest, NextResponse } from "next/server";
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export async function GET(
-  req: NextRequest,
-  context: { params: Record<string, string> }
-) {
+export async function GET(req: NextRequest, context: any) {
   try {
     const { id } = context.params;
 
-    const author = await prisma.user.findUnique({
-      where: { id },
-      select: {
-        id: true,
-        fName: true,
-        lName: true,
-        img: true,
-        bio: true,
+    const posts = await prisma.post.findMany({
+      where: { authorId: id },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        author: {
+          select: {
+            id: true,
+            fName: true,
+            lName: true,
+            img: true,
+          },
+        },
       },
     });
 
-    if (!author) {
-      return NextResponse.json(
-        { error: 'Author not found' },
-        { status: 404 }
-      );
-    }
-
-    return NextResponse.json(author);
+    return NextResponse.json(posts);
   } catch (error) {
-    console.error('❌ Error fetching author:', error);
+    console.error("❌ Error fetching author posts:", error);
     return NextResponse.json(
-      { error: 'An error occurred while fetching author data' },
+      { error: "Error fetching author posts" },
       { status: 500 }
     );
   }
