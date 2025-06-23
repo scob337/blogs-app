@@ -3,16 +3,11 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-interface Params {
-  params: {
-    id: string;
-  };
-}
-
+// جلب مقالات المؤلف
 export async function GET(
-  req: NextRequest,
-  { params }: Params
-) {
+  request: NextRequest,
+  { params }: { params: { id: string } }
+): Promise<NextResponse> {
   try {
     const { id } = params;
 
