@@ -6,10 +6,10 @@ const prisma = new PrismaClient();
 // Fetch author data
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
-): Promise<NextResponse> {
+  context: { params: { id: string } }
+) {
   try {
-    const { id } = params;
+    const { id } = context.params;
 
     const author = await prisma.user.findUnique({
       where: { id },

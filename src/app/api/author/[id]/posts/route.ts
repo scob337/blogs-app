@@ -3,16 +3,17 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
+// جلب مقالات المؤلف
 export async function GET(
   req: NextRequest,
-  context: any
-) {
+  { params }: { params: { id: string } }
+): Promise<NextResponse> {
   try {
-    const { id } = context.params;
+    const { id } = params;
 
     const posts = await prisma.post.findMany({
       where: { authorId: id },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
       include: {
         author: {
           select: {
