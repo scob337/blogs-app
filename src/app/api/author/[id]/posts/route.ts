@@ -5,14 +5,14 @@ const prisma = new PrismaClient();
 
 export async function GET(
   req: NextRequest,
-  context: { params: { [key: string]: string } }
-): Promise<NextResponse> {
+  context: any
+) {
   try {
     const { id } = context.params;
 
     const posts = await prisma.post.findMany({
       where: { authorId: id },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
       include: {
         author: {
           select: {
