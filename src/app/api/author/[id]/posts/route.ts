@@ -5,11 +5,11 @@ const prisma = new PrismaClient();
 
 // جلب مقالات المؤلف
 export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  context: { params: { id: string } }
 ): Promise<NextResponse> {
   try {
-    const { id } = params;
+    const { id } = context.params;
 
     const posts = await prisma.post.findMany({
       where: { authorId: id },
