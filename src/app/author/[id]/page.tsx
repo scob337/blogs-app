@@ -64,7 +64,7 @@ export default function AuthorPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-800 mb-4">Author Not Found</h1>
-          <p className="text-gray-600 mb-6">We couldn't find the requested author.</p>
+          <p className="text-gray-600 mb-6">We couldn`&apos;`t find the requested author.</p>
           <Link href="/auth">
             <button className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
               Back to Homepage
@@ -107,11 +107,11 @@ export default function AuthorPage() {
         </div>
 
         {/* Author Posts */}
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">{author.fName}'s Articles</h2>
+        <h2 className="text-2xl font-bold text-gray-900 mb-6">{author.fName}`&apos;`s Articles</h2>
 
         {posts.length === 0 ? (
           <div className="bg-white rounded-xl shadow-md p-8 text-center">
-            <p className="text-gray-600">This author hasn't published any articles yet.</p>
+            <p className="text-gray-600">This author hasn`&apos;`t published any articles yet.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-6">

@@ -34,8 +34,8 @@ export async function PUT(req: NextRequest): Promise<NextResponse> {
     });
 
     // Exclude password from response
-    const { password, ...userWithoutPassword } = updatedUser;
-
+    const {...userWithoutPassword } = updatedUser;
+      
     return NextResponse.json(userWithoutPassword);
   } catch (error) {
     console.error("❌ Error updating user:", error);
