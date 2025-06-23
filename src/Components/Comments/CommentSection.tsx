@@ -114,7 +114,8 @@ export default function CommentSection({ postId }: CommentSectionProps) {
   // إزالة fetchComments من قائمة التبعيات لمنع الحلقة اللانهائية
   useEffect(() => {
     fetchComments()
-  }, [postId]) // إزالة fetchComments من هنا
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [postId]) // إزالة fetchComments من هنا عمداً لمنع الحلقة اللانهائية
 
   const handleCommentSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
