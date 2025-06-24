@@ -3,13 +3,9 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<any> }
-) {
+export async function GET(req: NextRequest, context: { params: { id: string } }) {
   try {
-    const { id } = await params; // لازم تستخدم await عشان الـ Promise يتحوّل الى كائن فعلي
-
+    const { id } = context.params;
     const posts = await prisma.post.findMany({
       where: { authorId: id },
       orderBy: { createdAt: 'desc' },
