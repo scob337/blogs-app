@@ -4,14 +4,15 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 export async function GET(
-  _req: Request | NextRequest,
-  { params }: { params: { id: string } }
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   try {
-    const { id } = params;
+    const { id } = await params;
+
     const posts = await prisma.post.findMany({
       where: { authorId: id },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
       include: {
         author: {
           select: {
