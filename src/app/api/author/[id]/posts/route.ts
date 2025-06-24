@@ -3,14 +3,12 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-type RouteParams = { params: { id: string } };
-
 export async function GET(
-  request: NextRequest,
-  context: RouteParams
-) {
+  _req: Request | NextRequest,
+  { params }: { params: { id: string } }
+): Promise<NextResponse> {
   try {
-    const { id } = context.params;
+    const { id } = params;
     const posts = await prisma.post.findMany({
       where: { authorId: id },
       orderBy: { createdAt: 'desc' },
