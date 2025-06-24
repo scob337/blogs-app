@@ -3,7 +3,14 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export async function GET(req: NextRequest, context: any) {
+// استخدم تايب مضبوط بدل any
+interface Params {
+  params: {
+    id: string;
+  };
+}
+
+export async function GET(req: NextRequest, context: Params) {
   try {
     const { id } = context.params;
 
