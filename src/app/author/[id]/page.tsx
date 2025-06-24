@@ -78,40 +78,44 @@ export default function AuthorPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 py-12">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Author Info */}
-        <div className="bg-white rounded-xl shadow-md p-8 mb-8">
+        {/* Author Info - Enhanced */}
+        <div className="bg-white rounded-xl shadow-lg p-8 mb-8 border border-gray-100">
           <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
-            <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-gray-200">
+            <div className="w-40 h-40 rounded-full overflow-hidden border-4 border-blue-100 shadow-md">
               <Image
                 src={author.img || '/placeholder-avatar.png'}
                 alt={`${author.fName} ${author.lName}`}
-                width={128}
-                height={128}
+                width={160}
+                height={160}
                 className="object-cover"
               />
             </div>
-            <div className="flex-1 text-center md:text-left">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <div className="flex-1 text-center md:text-right">
+              <h1 className="text-4xl font-bold text-gray-900 mb-3 text-right">
                 {author.fName} {author.lName}
               </h1>
               {author.bio && (
-                <p className="text-gray-600 mb-4">{author.bio}</p>
+                <p className="text-gray-600 mb-4 text-lg leading-relaxed text-right">{author.bio}</p>
               )}
-              <div className="flex flex-wrap gap-2 justify-center md:justify-start">
-                <span className="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-sm">
-                  {posts.length} {posts.length === 1 ? 'Post' : 'Posts'}
+              <div className="flex flex-wrap gap-3 justify-center md:justify-end mt-4">
+                <span className="px-4 py-2 bg-blue-50 text-blue-600 rounded-full text-sm font-medium shadow-sm">
+                  {posts.length} {posts.length === 1 ? 'مقال' : 'مقالات'}
+                </span>
+                {/* يمكن إضافة أزرار للتواصل الاجتماعي هنا */}
+                <span className="px-4 py-2 bg-purple-50 text-purple-600 rounded-full text-sm font-medium shadow-sm">
+                  كاتب
                 </span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Author Posts */}
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">{author.fName}`&apos;`s Articles</h2>
+        {/* Author Posts - Enhanced */}
+        <h2 className="text-2xl font-bold text-gray-900 mb-6 text-right">مقالات {author.fName}</h2>
 
         {posts.length === 0 ? (
           <div className="bg-white rounded-xl shadow-md p-8 text-center">
-            <p className="text-gray-600">This author hasn`&apos;`t published any articles yet.</p>
+            <p className="text-gray-600">لم ينشر هذا الكاتب أي مقالات بعد.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-6">
