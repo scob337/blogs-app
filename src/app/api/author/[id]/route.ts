@@ -17,6 +17,7 @@ export async function GET(req: NextRequest, context: any) {
             fName: true,
             lName: true,
             img: true,
+            bio:true
           },
         },
       },

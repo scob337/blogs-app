@@ -1,6 +1,8 @@
-module.exports = {
-  eslint: {
-    // تجاهل مشاكل ESLint أثناء البناء (غير مستحسن للإنتاج)
-    ignoreDuringBuilds: true,
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  images: {
+    domains: ['avatar.iran.liara.run'],
   },
-}
+};
+
+module.exports = nextConfig;

@@ -22,7 +22,7 @@ export default function AuthorPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchAuthorAndPosts = async () => {
+    const fetchPosts = async () => {
       try {
         setLoading(true);
 
@@ -32,8 +32,7 @@ export default function AuthorPage() {
           throw new Error('Failed to fetch author data');
         }
         const authorData = await authorResponse.json();
-        setAuthor(authorData);
-
+        setAuthor(authorData[0].author)
         // Fetch author posts
         const postsResponse = await fetch(`/api/author/${id}/posts`);
         if (!postsResponse.ok) {
@@ -48,7 +47,8 @@ export default function AuthorPage() {
       }
     };
 
-    fetchAuthorAndPosts();
+    fetchPosts();
+
   }, [id]);
 
   if (loading) {
@@ -83,7 +83,7 @@ export default function AuthorPage() {
           <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
             <div className="w-40 h-40 rounded-full overflow-hidden border-4 border-blue-100 shadow-md">
               <Image
-                src={author.img || '/placeholder-avatar.png'}
+                src={author.img || ''}
                 alt={`${author.fName} ${author.lName}`}
                 width={160}
                 height={160}
