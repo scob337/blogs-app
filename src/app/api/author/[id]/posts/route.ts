@@ -5,10 +5,10 @@ const prisma = new PrismaClient();
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params;  // ✅ مهم تنتظر params لأنه Promise
+    const { id } = params;
 
     const posts = await prisma.post.findMany({
       where: { authorId: id },
