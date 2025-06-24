@@ -3,9 +3,12 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export async function GET(req: NextRequest, context:{params:{id:string}}) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    const { id } = context.params;
+    const { id } = await params; // لازم تستخدم await عشان الـ Promise يتحوّل الى كائن فعلي
 
     const posts = await prisma.post.findMany({
       where: { authorId: id },
