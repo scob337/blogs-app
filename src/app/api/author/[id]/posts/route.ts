@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<any> }
 ) {
   try {
     const { id } = await params; // لازم تستخدم await عشان الـ Promise يتحوّل الى كائن فعلي
