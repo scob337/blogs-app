@@ -4,15 +4,14 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 export async function GET(
-  _req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-): Promise<NextResponse> {
+  request: NextRequest,
+  context: { params: { id: string } }
+) {
   try {
-    const { id } = await params;
-
+    const { id } = context.params;
     const posts = await prisma.post.findMany({
       where: { authorId: id },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
       include: {
         author: {
           select: {
@@ -24,12 +23,10 @@ export async function GET(
         },
       },
     });
-
     return NextResponse.json(posts);
   } catch (error) {
-    console.error("❌ Error fetching author posts:", error);
     return NextResponse.json(
-      { error: "Error fetching author posts" },
+      { error: "Error fetching author posts" + error},
       { status: 500 }
     );
   }
