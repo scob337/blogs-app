@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useUser } from '../../../../../../contexts/UserContext';
 import Image from 'next/image';
-import { ArrowLeft, Camera, XCircle, Save, Trash2, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Camera, Save, Trash2, AlertTriangle } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import dynamic from 'next/dynamic';
 import '../../../articles/create/EditorPlugins';

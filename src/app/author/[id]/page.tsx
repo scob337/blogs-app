@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { User, Mail, Edit, Plus, Calendar, ArrowLeft, BookOpen, UserCircle } from 'lucide-react';
+import {Mail, Edit, Plus, ArrowLeft, BookOpen, UserCircle } from 'lucide-react';
 import PostCard from '@/Components/AuthArticle/post-card';
 import IPost from '@/Types/PostTypes';
 import { useUser } from '../../../../contexts/UserContext';

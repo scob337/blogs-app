@@ -5,7 +5,7 @@ import { useUser } from '../../../contexts/UserContext';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { User, Camera, Save, Lock, KeyRound, Eye, EyeOff, ArrowLeft, Shield, UserCircle } from 'lucide-react';
+import { User, Camera, Save, Lock, KeyRound, ArrowLeft, Shield, UserCircle } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 
 interface UserSettings {

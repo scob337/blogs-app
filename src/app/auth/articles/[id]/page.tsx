@@ -20,8 +20,11 @@ export default function ArticlePage() {
   const [loading, setLoading] = useState(true)
   const [liked, setLiked] = useState(false)
   const [likeCount, setLikeCount] = useState(0)
+  const [bookmarked, setBookmarked] = useState(false);
+
   const { user } = useUser()
 
+const router = useRouter();
   // تحسين وظيفة التحميل الأولي للتحقق من اللايكات
   useEffect(() => {
     const fetchData = async () => {
@@ -149,7 +152,7 @@ export default function ArticlePage() {
     return <Loading />
   }
   
-  const router = useRouter();
+  
   
   // تنسيق التاريخ بالعربية
   const formattedDate = new Date(post.createdAt).toLocaleDateString("ar-EG", {
@@ -179,7 +182,6 @@ export default function ArticlePage() {
   };
   
   // حفظ المقال
-  const [bookmarked, setBookmarked] = useState(false);
   
   const handleBookmark = () => {
     setBookmarked(!bookmarked);

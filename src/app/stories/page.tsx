@@ -5,7 +5,7 @@ import { useUser } from '../../../contexts/UserContext';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Edit2, Trash2, Plus, Search, Filter, Calendar, Eye, Heart, MessageSquare } from 'lucide-react';
+import { Edit2, Trash2, Plus, Search, Calendar, Eye, Heart, MessageSquare } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import IPost from '@/Types/PostTypes';
 
