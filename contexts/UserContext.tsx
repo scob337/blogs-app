@@ -50,10 +50,11 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     fetchUser();
   }, []);
 
-  // ✅ دالة تسجيل الدخول
+  // ✅ دالة تسجيل الدخول محسنة
   const login = (userData: User) => {
     setUser(userData);
-    router.push("/auth");
+    // استخدام router.replace بدلاً من router.push لتجنب مشاكل التاريخ
+    router.replace("/auth");
   };
 
 

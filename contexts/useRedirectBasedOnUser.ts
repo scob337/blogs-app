@@ -26,6 +26,9 @@ export const useRedirectBasedOnUser = ({
       } else if (check === "guest" && user) {
         console.log("Redirecting to:", redirectIfAuthenticated);
         router.replace(redirectIfAuthenticated);
+      } else if (check === "any") {
+        // لا نقوم بأي إعادة توجيه في حالة "any"
+        console.log("No redirection needed for 'any' check");
       }
     }
   }, [user, loading, router, check, redirectIfAuthenticated, redirectIfNotAuthenticated]); 

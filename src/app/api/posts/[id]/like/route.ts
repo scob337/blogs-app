@@ -4,6 +4,7 @@ import { ObjectId } from "mongodb";
 import * as cookie from "cookie";
 import { verifyToken } from "../../../../../../utils/auth";
 import { Prisma } from "@prisma/client";
+import { io } from "../../../../../server.js";
 
 const prisma = new PrismaClient();
 
@@ -121,7 +122,49 @@ export async function POST(
           postId,
           commentId: null
         },
+        include: {
+          post: {
+            select: {
+              authorId: true
+            }
+          },
+          user: {
+            select: {
+              id: true,
+              fName: true,
+              img: true
+            }
+          }
+        }
       });
+
+      // Get post author to send notification
+      const post = await prisma.post.findUnique({
+        where: { id: postId },
+        select: { authorId: true, title: true }
+      });
+
+      // Only send notification if the liker is not the post author
+      if (post && post.authorId !== user.id) {
+        try {
+          io?.emit("likeNotification", {
+            postId: postId,
+            postTitle: post.title,
+            likerName: newLike.user?.fName || "Unknown",
+            likerId: user.id,
+            likerImg: newLike.user?.img || null,
+            recipientId: post.authorId, // معرف صاحب المنشور الذي سيتلقى الإشعار
+            createdAt: new Date().toISOString(),
+            read: false
+          });
+          console.log(`📢 New Notification: Like on post ${postId} by user ${user.id} to author ${post.authorId}`);
+        } catch (wsError) {
+          console.warn(
+            `⚠️ WebSocket not initialized! Ensure server.js is running.`,
+            wsError
+          );
+        }
+      }
 
       return NextResponse.json({ 
         message: "Post liked successfully", 

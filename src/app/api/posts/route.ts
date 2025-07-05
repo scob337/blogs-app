@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { verifyToken } from "../../../../utils/auth";
+import { io } from "@/server";
 
 const prisma = new PrismaClient();
 
@@ -29,6 +30,25 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         thumbnail, 
         authorId: decoded.id,
       },
+      include: {
+        author: {
+          select: {
+            id: true,
+            fName: true,
+            img: true
+          }
+        }
+      }
+    });
+
+    // إرسال إشعار للمستخدمين الآخرين بوجود منشور جديد
+    io.emit('newPostNotification', {
+      postId: newPost.id,
+      title: newPost.title,
+      authorName: newPost.author?.fName || 'Unknown',
+      authorId: newPost.authorId,
+      createdAt: new Date().toISOString(),
+      read: false
     });
 
     return NextResponse.json(newPost , { status: 201 });

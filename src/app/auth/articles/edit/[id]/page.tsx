@@ -4,10 +4,11 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useUser } from '../../../../../../contexts/UserContext';
 import Image from 'next/image';
-import { XCircle } from 'lucide-react';
+import { ArrowLeft, Camera, XCircle, Save, Trash2, AlertTriangle } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import dynamic from 'next/dynamic';
 import '../../../articles/create/EditorPlugins';
+import Link from 'next/link';
 
 const FroalaEditor = dynamic(() => import('react-froala-wysiwyg'), { ssr: false });
 
@@ -21,13 +22,43 @@ export default function EditArticlePage() {
   const [preview, setPreview] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [category, setCategory] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Categories in Arabic
+  const categories = [
+    { id: 'technology', name: 'تكنولوجيا' },
+    { id: 'health', name: 'صحة' },
+    { id: 'education', name: 'تعليم' },
+    { id: 'sports', name: 'رياضة' },
+    { id: 'politics', name: 'سياسة' },
+    { id: 'entertainment', name: 'ترفيه' },
+    { id: 'science', name: 'علوم' },
+    { id: 'business', name: 'أعمال' },
+    { id: 'travel', name: 'سفر' },
+    { id: 'food', name: 'طعام' },
+  ];
 
   useEffect(() => {
     if (!loading && !user) {
       router.push('/login');
     }
   }, [loading, user, router]);
+
+  // Warn about unsaved changes
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = '';
+        return '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [hasUnsavedChanges]);
 
   useEffect(() => {
     const fetchArticle = async () => {
@@ -44,16 +75,18 @@ export default function EditArticlePage() {
         const article = await response.json();
 
         if (user && article.authorId !== user.id) {
-          toast.error('You are not authorized to edit this article');
+          toast.error('غير مصرح لك بتعديل هذا المقال');
           router.push('/stories');
           return;
         }
 
         setTitle(article.title);
         setContent(article.content);
+        setCategory(article.category || 'technology');
         if (article.thumbnail) {
           setPreview(article.thumbnail);
         }
+        setHasUnsavedChanges(false);
       } catch (error) {
         console.error('Error fetching article:', error);
         toast.error('An error occurred while fetching article data');
@@ -71,8 +104,14 @@ export default function EditArticlePage() {
   const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Check file size (5MB limit)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('حجم الصورة يجب أن يكون أقل من 5 ميجابايت');
+        return;
+      }
       setThumbnail(file);
       setPreview(URL.createObjectURL(file));
+      setHasUnsavedChanges(true);
     }
   };
 
@@ -80,20 +119,32 @@ export default function EditArticlePage() {
     setThumbnail(null);
     setPreview(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
+    setHasUnsavedChanges(true);
   };
 
   const handleSubmit = async () => {
     if (!title || !content) {
-      toast.error('Please fill in all required fields');
+      toast.error('يرجى ملء جميع الحقول المطلوبة');
+      return;
+    }
+
+    if (title.length < 5) {
+      toast.error('عنوان المقال يجب أن يكون أكثر من 5 أحرف');
+      return;
+    }
+
+    if (content.length < 100) {
+      toast.error('محتوى المقال يجب أن يكون أكثر من 100 حرف');
       return;
     }
 
     setIsSubmitting(true);
 
     try {
-      const postData: { title: string; content: string; thumbnail?: string } = {
+      const postData: { title: string; content: string; thumbnail?: string; category: string } = {
         title,
         content,
+        category,
       };
 
       if (thumbnail) {
@@ -121,11 +172,12 @@ export default function EditArticlePage() {
         throw new Error('Failed to update article');
       }
 
-      toast.success('Article updated successfully');
+      toast.success('تم تحديث المقال بنجاح');
+      setHasUnsavedChanges(false);
       router.push('/stories');
     } catch (error) {
       console.error('Error updating article:', error);
-      toast.error('An error occurred while updating the article');
+      toast.error('حدث خطأ أثناء تحديث المقال');
     } finally {
       setIsSubmitting(false);
     }
@@ -133,8 +185,9 @@ export default function EditArticlePage() {
 
   if (loading || isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-50 via-white to-gray-100">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-600 mb-4"></div>
+        <p className="text-gray-600 font-medium text-lg">جاري تحميل المقال...</p>
       </div>
     );
   }
@@ -143,46 +196,90 @@ export default function EditArticlePage() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 py-12">
       <Toaster position="bottom-right" />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Edit Article</h1>
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center">
+            <Link href="/stories" className="mr-4 p-2 rounded-full hover:bg-gray-200 transition-colors">
+              <ArrowLeft className="w-5 h-5 text-gray-700" />
+            </Link>
+            <h1 className="text-3xl font-bold text-gray-900">تعديل المقال</h1>
+          </div>
+          {hasUnsavedChanges && (
+            <div className="flex items-center text-amber-600 bg-amber-50 px-3 py-1 rounded-full">
+              <AlertTriangle className="w-4 h-4 mr-1" />
+              <span className="text-sm">تغييرات غير محفوظة</span>
+            </div>
+          )}
+        </div>
 
         <div className="bg-white rounded-xl shadow-md p-6 space-y-6">
           {/* Article Title */}
           <div>
             <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
-              Article Title
+              عنوان المقال
             </label>
             <input
               type="text"
               id="title"
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Enter article title"
+              onChange={(e) => {
+                setTitle(e.target.value);
+                setHasUnsavedChanges(true);
+              }}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent text-right"
+              placeholder="أدخل عنوان المقال"
+              dir="rtl"
             />
+          </div>
+          
+          {/* Category Selection */}
+          <div>
+            <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
+              فئة المقال
+            </label>
+            <select
+              id="category"
+              value={category}
+              onChange={(e) => {
+                setCategory(e.target.value);
+                setHasUnsavedChanges(true);
+              }}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent text-right"
+              dir="rtl"
+            >
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* Thumbnail */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Thumbnail
+              صورة المقال
             </label>
             {preview ? (
-              <div className="relative w-full h-64 rounded-lg overflow-hidden mb-4">
+              <div className="relative w-full h-72 rounded-lg overflow-hidden mb-4 border border-gray-200">
                 <Image
                   src={preview}
-                  alt="Thumbnail preview"
+                  alt="معاينة صورة المقال"
                   fill
                   className="object-cover"
                 />
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
+                  <p className="text-white text-sm truncate">{title || 'عنوان المقال'}</p>
+                </div>
                 <button
                   onClick={handleRemoveThumbnail}
-                  className="absolute top-2 right-2 bg-white rounded-full p-1 shadow-md hover:bg-gray-100 transition-colors"
+                  className="absolute top-2 right-2 bg-white rounded-full p-2 shadow-md hover:bg-gray-100 transition-colors"
+                  title="إزالة الصورة"
                 >
-                  <XCircle className="w-6 h-6 text-red-500" />
+                  <Trash2 className="w-5 h-5 text-red-500" />
                 </button>
               </div>
             ) : (
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center">
                 <input
                   type="file"
                   accept="image/*"
@@ -190,13 +287,14 @@ export default function EditArticlePage() {
                   className="hidden"
                   ref={fileInputRef}
                 />
+                <Camera className="w-12 h-12 text-gray-400 mx-auto mb-3" />
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  className="px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
                 >
-                  Choose Image
+                  اختر صورة
                 </button>
-                <p className="text-sm text-gray-500 mt-2">PNG, JPG, GIF up to 5MB</p>
+                <p className="text-sm text-gray-500 mt-3 font-medium">PNG، JPG، GIF حتى 5 ميجابايت</p>
               </div>
             )}
           </div>
@@ -204,13 +302,16 @@ export default function EditArticlePage() {
           {/* Content */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Article Content
+              محتوى المقال
             </label>
             <FroalaEditor
               model={content}
-              onModelChange={(model: string) => setContent(model)}
+              onModelChange={(model: string) => {
+                setContent(model);
+                setHasUnsavedChanges(true);
+              }}
               config={{
-                placeholderText: 'Write your article content here...',
+                placeholderText: 'اكتب محتوى مقالك هنا...',
                 charCounterCount: true,
                 toolbarButtons: {
                   moreText: {
@@ -233,14 +334,21 @@ export default function EditArticlePage() {
             />
           </div>
 
-          {/* Save Button */}
-          <div className="flex justify-end">
+          {/* Buttons */}
+          <div className="flex justify-between items-center pt-4">
+            <Link 
+              href="/stories"
+              className="px-5 py-2.5 rounded-lg text-gray-700 font-medium border border-gray-300 hover:bg-gray-100 transition-colors"
+            >
+              إلغاء
+            </Link>
             <button
               onClick={handleSubmit}
               disabled={isSubmitting}
-              className={`px-6 py-2 rounded-lg text-white font-medium ${isSubmitting ? 'bg-blue-400' : 'bg-blue-600 hover:bg-blue-700'}`}
+              className={`px-6 py-2.5 rounded-lg text-white font-medium flex items-center ${isSubmitting ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 transition-colors'}`}
             >
-              {isSubmitting ? 'Saving...' : 'Save Changes'}
+              <Save className="w-5 h-5 mr-2" />
+              {isSubmitting ? 'جاري الحفظ...' : 'حفظ التغييرات'}
             </button>
           </div>
         </div>

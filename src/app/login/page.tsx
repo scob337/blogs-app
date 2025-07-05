@@ -1,7 +1,6 @@
 'use client';
 
 import {  useState } from 'react';
-import { useRouter } from "next/navigation";
 import { useUser } from '../../../contexts/UserContext';
 import Link from 'next/link';
 
@@ -29,7 +28,6 @@ const Login = () => {
 };
 
 const LoginForm = () => {
-  const router = useRouter();
 
   const [information, setInformation] = useState({
     email: "",
@@ -74,11 +72,10 @@ const LoginForm = () => {
       setSuccess("Login successful!");
       setError(null);
       
-      setTimeout(() => {
-        login(userData);
-        setSuccess(null);
-        router.push("/auth");
-      }, 400);
+      // تسجيل الدخول وتعيين بيانات المستخدم في السياق
+      login(userData.user);
+      setSuccess(null);
+      // لا نحتاج إلى router.push هنا لأن وظيفة login في UserContext ستقوم بذلك
       
     } catch (err: unknown) {
       setLoading(false);

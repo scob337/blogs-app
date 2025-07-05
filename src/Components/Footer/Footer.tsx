@@ -2,45 +2,141 @@
 
 import Link from 'next/link';
 import Logo from '../Logo';
+import { Mail, Phone, MapPin, Facebook, Twitter, Instagram, Linkedin, Github } from 'lucide-react';
 
 const Footer = () => {
   return (
-    <footer>
-      <div className="bg-[#090E34] py-6 text-gray-400">
-        <div className="container px-6 mx-auto">
-          <div className="-mx-4 flex flex-wrap justify-between">
-            <div className="px-4 my-4 w-full xl:w-1/4">
-            <Logo/>
-              <p className="text-justify">
-                Gspot is a modern blogging platform that provides rich and diverse content 
-                in various fields, allowing writers to share their thoughts and inspiring articles with everyone.
-              </p>
+    <footer className="bg-gradient-to-br from-indigo-900 to-indigo-950 text-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {/* Logo and About */}
+          <div className="space-y-4">
+            <div className="mb-4">
+              <Logo />
             </div>
-
-            <div className="px-4 my-4 w-full sm:w-auto">
-              <h2 className="text-xl pb-3 mb-3 border-b-4 border-blue-600">Explore</h2>
-              <ul className="leading-8">
-                <li><Link href="/categories" className="hover:text-blue-400">Categories</Link></li>
-                <li><Link href="/popular" className="hover:text-blue-400">Popular Articles</Link></li>
-                <li><Link href="/authors" className="hover:text-blue-400">Authors</Link></li>
-                <li><Link href="/about" className="hover:text-blue-400">About Us</Link></li>
-              </ul>
+            <p className="text-gray-300 text-sm leading-relaxed">
+              منصة المدونات العربية هي منصة حديثة للتدوين توفر محتوى غني ومتنوع
+              في مختلف المجالات، تتيح للكتاب مشاركة أفكارهم ومقالاتهم الملهمة مع الجميع.
+            </p>
+            <div className="flex space-x-4 rtl:space-x-reverse pt-4">
+              <a href="#" className="text-gray-300 hover:text-white transition-colors">
+                <Facebook className="w-5 h-5" />
+              </a>
+              <a href="#" className="text-gray-300 hover:text-white transition-colors">
+                <Twitter className="w-5 h-5" />
+              </a>
+              <a href="#" className="text-gray-300 hover:text-white transition-colors">
+                <Instagram className="w-5 h-5" />
+              </a>
+              <a href="#" className="text-gray-300 hover:text-white transition-colors">
+                <Linkedin className="w-5 h-5" />
+              </a>
+              <a href="#" className="text-gray-300 hover:text-white transition-colors">
+                <Github className="w-5 h-5" />
+              </a>
             </div>
+          </div>
 
-            <div className="px-4 my-4 w-full sm:w-auto">
-              <h2 className="text-xl pb-3 mb-3 border-b-4 border-blue-600">Latest Articles</h2>
-              <ul className="leading-8">
-                <li><Link href="/article/html-css" className="hover:text-blue-400">{"Beginner's"} Guide to HTML & CSS</Link></li>
-                <li><Link href="/article/flexbox" className="hover:text-blue-400">What is Flexbox and How to Use It?</Link></li>
-                <li><Link href="/article/tailwindcss" className="hover:text-blue-400">How TailwindCSS Boosts Productivity?</Link></li>
-                <li><Link href="/article/responsive-tips" className="hover:text-blue-400">5 Tips for a Responsive Website</Link></li>
+          {/* Quick Links */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-white relative pb-2 after:content-[''] after:absolute after:bottom-0 after:right-0 after:h-0.5 after:w-12 after:bg-indigo-500">روابط سريعة</h3>
+            <ul className="space-y-2">
+              <li>
+                <Link href="/categories" className="text-gray-300 hover:text-white transition-colors flex items-center">
+                  <span className="ml-2">•</span> التصنيفات
+                </Link>
+              </li>
+              <li>
+                <Link href="/popular" className="text-gray-300 hover:text-white transition-colors flex items-center">
+                  <span className="ml-2">•</span> المقالات الشائعة
+                </Link>
+              </li>
+              <li>
+                <Link href="/authors" className="text-gray-300 hover:text-white transition-colors flex items-center">
+                  <span className="ml-2">•</span> الكتّاب
+                </Link>
+              </li>
+              <li>
+                <Link href="/about" className="text-gray-300 hover:text-white transition-colors flex items-center">
+                  <span className="ml-2">•</span> من نحن
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Latest Articles */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-white relative pb-2 after:content-[''] after:absolute after:bottom-0 after:right-0 after:h-0.5 after:w-12 after:bg-indigo-500">أحدث المقالات</h3>
+            <ul className="space-y-2">
+              <li>
+                <Link href="/article/html-css" className="text-gray-300 hover:text-white transition-colors block">
+                  دليل المبتدئين إلى HTML و CSS
+                </Link>
+              </li>
+              <li>
+                <Link href="/article/flexbox" className="text-gray-300 hover:text-white transition-colors block">
+                  ما هو Flexbox وكيفية استخدامه؟
+                </Link>
+              </li>
+              <li>
+                <Link href="/article/tailwindcss" className="text-gray-300 hover:text-white transition-colors block">
+                  كيف يعزز TailwindCSS الإنتاجية؟
+                </Link>
+              </li>
+              <li>
+                <Link href="/article/responsive-tips" className="text-gray-300 hover:text-white transition-colors block">
+                  5 نصائح لموقع ويب متجاوب
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Contact Info */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-white relative pb-2 after:content-[''] after:absolute after:bottom-0 after:right-0 after:h-0.5 after:w-12 after:bg-indigo-500">تواصل معنا</h3>
+            <ul className="space-y-3">
+              <li className="flex items-start">
+                <MapPin className="w-5 h-5 text-indigo-400 ml-3 mt-0.5" />
+                <span className="text-gray-300">القاهرة، مصر</span>
+              </li>
+              <li className="flex items-center">
+                <Phone className="w-5 h-5 text-indigo-400 ml-3" />
+                <span className="text-gray-300">+20 123 456 7890</span>
+              </li>
+              <li className="flex items-center">
+                <Mail className="w-5 h-5 text-indigo-400 ml-3" />
+                <span className="text-gray-300">info@blogs-app.com</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="border-t border-indigo-800 mt-12 pt-8">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <p className="text-gray-400 text-sm">
+              &copy; {new Date().getFullYear()} منصة المدونات العربية. جميع الحقوق محفوظة.
+            </p>
+            <div className="mt-4 md:mt-0">
+              <ul className="flex space-x-6 rtl:space-x-reverse">
+                <li>
+                  <Link href="/privacy" className="text-gray-400 hover:text-white text-sm transition-colors">
+                    سياسة الخصوصية
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/terms" className="text-gray-400 hover:text-white text-sm transition-colors">
+                    شروط الاستخدام
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/cookies" className="text-gray-400 hover:text-white text-sm transition-colors">
+                    سياسة ملفات تعريف الارتباط
+                  </Link>
+                </li>
               </ul>
             </div>
           </div>
         </div>
-      </div>
-      <div className="bg-[#060A24] py-4 text-gray-100 text-center">
-        <p>&copy; {new Date().getFullYear()} Gspot. All rights reserved.</p>
       </div>
     </footer>
   );

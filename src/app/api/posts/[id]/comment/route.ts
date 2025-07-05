@@ -118,19 +118,51 @@ export async function POST(
       id: undefined, // Optional: Let Prisma auto-generate the ID
     };
 
-    const newComment = await prisma.comment.create({ data: commentData });
+    // إنشاء التعليق مع تضمين معلومات المستخدم
+    const newComment = await prisma.comment.create({
+      data: commentData,
+      include: {
+        user: {
+          select: {
+            id: true,
+            fName: true,
+            img: true
+          }
+        }
+      }
+    });
 
-    try {
-      io?.emit("commentNotification", {
-        message: `💬 A new user commented on your post!`,
-        comment: newComment,
-      });
-      console.log(`📢 New Notification: Comment on post ${postId}`);
-    } catch (wsError) {
-      console.warn(
-        `⚠️ WebSocket not initialized! Ensure \`server.ts\` is running.`,
-        wsError
-      );
+    // الحصول على معلومات المنشور وصاحبه
+    const post = await prisma.post.findUnique({
+      where: { id: postId },
+      select: {
+        title: true,
+        authorId: true
+      }
+    });
+
+    // إرسال إشعار فقط إذا كان المعلق ليس هو صاحب المنشور
+    if (post && post.authorId !== user.id) {
+      try {
+        io?.emit("commentNotification", {
+          postId: postId,
+          commentId: newComment.id,
+          postTitle: post.title,
+          commentContent: newComment.content,
+          commenterName: newComment.user?.fName || "Unknown",
+          commenterId: newComment.userId,
+          commenterImg: newComment.user?.img || null,
+          recipientId: post.authorId, // معرف صاحب المنشور الذي سيتلقى الإشعار
+          createdAt: new Date().toISOString(),
+          read: false
+        });
+        console.log(`📢 New Notification: Comment on post ${postId} by user ${user.id} to author ${post.authorId}`);
+      } catch (wsError) {
+        console.warn(
+          `⚠️ WebSocket not initialized! Ensure \`server.ts\` is running.`,
+          wsError
+        );
+      }
     }
 
     return NextResponse.json({
