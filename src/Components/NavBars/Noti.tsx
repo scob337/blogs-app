@@ -199,17 +199,17 @@ const Notifications = () => {
                       <div className="flex-1">
                         {notif.type === 'like' && (
                           <p className="text-sm font-medium">
-                            <span className="font-semibold">{notif.senderName}</span> liked your post "{notif.postTitle}"
+                            <span className="font-semibold">{notif.senderName}</span> liked your post {`"${notif.postTitle}"`}
                           </p>
                         )}
                         {notif.type === 'comment' && (
                           <p className="text-sm font-medium">
-                            <span className="font-semibold">{notif.senderName}</span> commented on your post "{notif.postTitle}"
+                            <span className="font-semibold">{notif.senderName}</span> commented on your post {`"${notif.postTitle}"`}
                           </p>
                         )}
                         {notif.type === 'post' && (
                           <p className="text-sm font-medium">
-                            <span className="font-semibold">{notif.senderName}</span> published a new post "{notif.postTitle}"
+                            <span className="font-semibold">{notif.senderName}</span> published a new post {`"${notif.postTitle}"`}
                           </p>
                         )}
                         <p className="text-xs text-gray-500 mt-1">{formatTime(notif.createdAt)}</p>

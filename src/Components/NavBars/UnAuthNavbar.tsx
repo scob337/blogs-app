@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import Logo from "../Logo";
-import { Menu, X, ChevronDown, Search } from "lucide-react";
+import { Menu, X, Search } from "lucide-react";
 
 const Links = [
   { id: 1, name: "الرئيسية", href: "/" },

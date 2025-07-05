@@ -1,6 +1,6 @@
 
 "use client";
-import { XCircle, ArrowLeft, Upload, Image as ImageIcon, Save, AlertCircle } from "lucide-react"; 
+import { XCircle, ArrowLeft, Upload, Save, AlertCircle } from "lucide-react"; 
 import './EditorPlugins'
 
 import { useState, useRef, useEffect } from "react";
