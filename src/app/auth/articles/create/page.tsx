@@ -1,7 +1,6 @@
-
 "use client";
 import { XCircle, ArrowLeft, Upload, Save, AlertCircle } from "lucide-react"; 
-import './EditorPlugins'
+import './EditorPlugins';
 
 import { useState, useRef, useEffect } from "react";
 import dynamic from "next/dynamic";
@@ -13,16 +12,15 @@ const FroalaEditor = dynamic(() => import("react-froala-wysiwyg"), { ssr: false 
 
 export default function CreateArticle() {
   const router = useRouter();
-  const [title, setTitle] = useState("");
+  const [title, setTitle] = useState<string>("");
   const [thumbnail, setThumbnail] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
-  const [content, setContent] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [content, setContent] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
-  const [category, setCategory] = useState("");
+  const [category, setCategory] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  // التحقق من وجود تغييرات غير محفوظة قبل مغادرة الصفحة
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (title || content || thumbnail) {
@@ -36,8 +34,7 @@ export default function CreateArticle() {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [title, content, thumbnail]);
   
-  // قائمة الفئات المتاحة
-  const categories = [
+  const categories: string[] = [
     "تكنولوجيا",
     "صحة",
     "تعليم",
@@ -64,7 +61,7 @@ export default function CreateArticle() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  const validateForm = () => {
+  const validateForm = (): boolean => {
     if (!title.trim()) {
       toast.error("يرجى إدخال عنوان للمقال");
       return false;
@@ -86,95 +83,70 @@ export default function CreateArticle() {
     setLoading(true);
     setStatus("idle");
     toast.loading("جاري إنشاء المقال...", { id: "creating-article" });
-  
-    // تجهيز البيانات ككائن JSON
-    const postData: { title: string; content: string; thumbnail: string | null; category: string } = {
+
+    const postData: {
+      title: string;
+      content: string;
+      thumbnail: string | null;
+      category: string;
+    } = {
       title,
       content,
       thumbnail: null,
-      category
+      category,
     };
-  
-    if (thumbnail) {
-      const reader = new FileReader();
-      reader.readAsDataURL(thumbnail);
-      reader.onloadend = async () => {
-        postData.thumbnail = typeof reader.result === "string" ? reader.result : null; // تحويل الصورة إلى Base64
-  
-        try {
-          const res = await fetch("/api/posts", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(postData),
-          });
-  
-          if (!res.ok) {
-            const errorData = await res.json();
-            throw new Error(errorData.error || "فشل في إنشاء المقال");
-          }
-          
-          const data = await res.json();
-          
-          toast.success("تم إنشاء المقال بنجاح!", { id: "creating-article" });
-          setStatus("success");
-          
-          // توجيه المستخدم إلى صفحة المقال الجديد بعد إنشائه
-          setTimeout(() => {
-            router.push(`/auth/articles/${data.id}`);
-          }, 1500);
-          
-        } catch (error: any) {
-          console.error("Error:", error);
-          toast.error(error.message || "حدث خطأ أثناء إنشاء المقال", { id: "creating-article" });
-          setStatus("error");
-        } finally {
-          setLoading(false);
-        }
-      };
-    } else {
+
+    const submitPost = async () => {
       try {
         const res = await fetch("/api/posts", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(postData),
         });
-  
+
         if (!res.ok) {
           const errorData = await res.json();
           throw new Error(errorData.error || "فشل في إنشاء المقال");
         }
-        
-        const data = await res.json();
-        
+
+        const data: { id: string } = await res.json();
         toast.success("تم إنشاء المقال بنجاح!", { id: "creating-article" });
         setStatus("success");
-        
-        // توجيه المستخدم إلى صفحة المقال الجديد بعد إنشائه
+
         setTimeout(() => {
           router.push(`/auth/articles/${data.id}`);
         }, 1500);
-        
-      } catch (error: any) {
+
+      } catch (error: unknown) {
         console.error("Error:", error);
-        toast.error(error.message || "حدث خطأ أثناء إنشاء المقال", { id: "creating-article" });
+        const errorMessage =
+          typeof error === "object" && error !== null && "message" in error
+            ? (error as { message: string }).message
+            : "حدث خطأ أثناء إنشاء المقال";
+        toast.error(errorMessage, { id: "creating-article" });
         setStatus("error");
       } finally {
         setLoading(false);
       }
+    };
+
+    if (thumbnail) {
+      const reader: FileReader = new FileReader();
+      reader.readAsDataURL(thumbnail);
+      reader.onloadend = async () => {
+        postData.thumbnail = typeof reader.result === "string" ? reader.result : null;
+        await submitPost();
+      };
+    } else {
+      await submitPost();
     }
   };
-  
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 py-10 px-4">
       <Toaster position="bottom-right" />
       
       <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-md overflow-hidden">
-        {/* رأس الصفحة */}
         <div className="bg-gradient-to-r from-indigo-500 to-purple-600 p-6 text-white">
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-bold">إنشاء مقال جديد</h1>
@@ -189,9 +161,7 @@ export default function CreateArticle() {
         </div>
         
         <div className="p-6">
-          {/* نموذج إنشاء المقال */}
           <div className="space-y-6">
-            {/* عنوان المقال */}
             <div>
               <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1 text-right">عنوان المقال</label>
               <input
@@ -204,8 +174,7 @@ export default function CreateArticle() {
                 dir="rtl"
               />
             </div>
-            
-            {/* فئة المقال */}
+
             <div>
               <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1 text-right">فئة المقال</label>
               <select
@@ -222,7 +191,6 @@ export default function CreateArticle() {
               </select>
             </div>
             
-            {/* صورة المقال */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1 text-right">صورة المقال</label>
               <div className="mt-1">
@@ -267,7 +235,6 @@ export default function CreateArticle() {
               </div>
             </div>
 
-            {/* محتوى المقال */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1 text-right">محتوى المقال</label>
               <div className="mt-1 border border-gray-300 rounded-lg overflow-hidden">
@@ -302,7 +269,6 @@ export default function CreateArticle() {
               </div>
             </div>
 
-            {/* زر النشر */}
             <div className="flex justify-end pt-4">
               <button
                 onClick={handleSubmit}
@@ -313,9 +279,7 @@ export default function CreateArticle() {
                 disabled={loading}
               >
                 {loading ? (
-                  <>
-                    <span className="animate-pulse">جاري النشر...</span>
-                  </>
+                  <span className="animate-pulse">جاري النشر...</span>
                 ) : (
                   <>
                     <Save className="w-5 h-5" />
@@ -324,8 +288,7 @@ export default function CreateArticle() {
                 )}
               </button>
             </div>
-            
-            {/* رسائل الحالة */}
+
             {status === "error" && (
               <div className="mt-4 p-3 bg-red-50 text-red-700 rounded-lg flex items-center gap-2 text-right">
                 <AlertCircle className="w-5 h-5 flex-shrink-0" />
