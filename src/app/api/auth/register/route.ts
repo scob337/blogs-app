@@ -29,7 +29,20 @@ export async function POST(req: Request) {
     const user = await prisma.user.create({ data: userData });
 
     const token = generateToken(user.id);
-    return NextResponse.json({ user, token });
+    
+    // ✅ إنشاء الاستجابة مع التوكن في الـ cookies
+    const { password: _, ...userWithoutPassword } = user;
+    const response = NextResponse.json({ user: userWithoutPassword });
+
+    response.cookies.set("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      maxAge: 7 * 24 * 60 * 60, // أسبوع
+      sameSite: "lax",
+    });
+
+    return response;
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "Something went wrong" }, { status: 500 });

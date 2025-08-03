@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useState } from "react";
+import { useUser } from '../../../contexts/UserContext';
+import { authenticatedPost } from '../../../utils/fetch';
 
 interface FormData {
   fName: string;
@@ -14,6 +16,7 @@ interface FormData {
 
 const RegisterForm: React.FC = () => {
   const router = useRouter();
+  const { login, refreshUser } = useUser();
   const [formData, setFormData] = useState<FormData>({
     fName: "",
     lName: "",
@@ -73,14 +76,14 @@ const RegisterForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    
     if (!validateForm()) {
       return;
     }
 
     setLoading(true);
     setStatus(null);
-    setStatusMessage(null);
+    setStatusMessage("");
 
     // توليد صورة افتراضية بناءً على الاسم الأول واسم العائلة
     const img = `https://avatar.iran.liara.run/username?username=${formData.fName}+${formData.lName}`;
@@ -88,23 +91,29 @@ const RegisterForm: React.FC = () => {
     const { ...dataToSend } = formData;
 
     try {
-      const response = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ ...dataToSend, img }),
-      });
+      const response = await authenticatedPost("/api/auth/register", { ...dataToSend, img });
 
-const responseData = await response.json();
-if (response.ok) {
-  setStatus("success");
-  setStatusMessage(responseData.message || "Registration successful! Redirecting...");
-  setTimeout(() => router.push("/login"), 2000);
-} else {
-  setStatus("error");
-  setStatusMessage(responseData.error || "Something went wrong.");
-}
+      const responseData = await response.json();
+      
+      if (response.ok) {
+        setStatus("success");
+        setStatusMessage("Registration successful! Redirecting...");
+        
+        // Log in the user immediately after registration
+        await login(responseData.user);
+        
+        // Wait a bit to ensure the token is properly set in cookies
+        await new Promise(resolve => setTimeout(resolve, 200));
+        
+        // Refresh user data to ensure token is properly set
+        await refreshUser();
+        
+        // Redirect to auth page
+        setTimeout(() => router.replace("/auth"), 1000);
+      } else {
+        setStatus("error");
+        setStatusMessage(responseData.error || "Something went wrong.");
+      }
 
     } catch (error) {
       console.error("An error occurred:", error);

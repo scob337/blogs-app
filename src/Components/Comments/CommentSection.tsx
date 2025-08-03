@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
-import { FaRegComment, FaHeart, FaRegHeart } from 'react-icons/fa'
+import { FaRegComment, FaHeart, FaRegHeart, FaSpinner } from 'react-icons/fa'
 import { useUser } from '../../../contexts/UserContext'
 import toast, { Toaster } from 'react-hot-toast'
 import ILike from '@/Types/LikeTypes'
+import { formatDateRelative } from '@/utils/dateUtils'
 
 // واجهة التعليق
 interface Comment {
@@ -117,41 +118,18 @@ export default function CommentSection({ postId }: CommentSectionProps) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [postId]) // إزالة fetchComments من هنا عمداً لمنع الحلقة اللانهائية
 
-  const handleCommentSubmit = async (e: React.FormEvent) => {
+  const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault()
-    
-    if (!commentText.trim()) {
-      toast.error('Comment cannot be empty', {
-        position: 'bottom-right',
-      })
-      return
-    }
-    
+    if (!commentText.trim()) return
+
+    // Check if user is logged in
     if (!user) {
-      toast.error('Please login to comment', {
-        position: 'bottom-right',
-      })
+      toast.error('Please log in to post a comment')
       return
     }
     
     setSubmittingComment(true)
-    
-    // إنشاء تعليق مؤقت للعرض الفوري
-    const optimisticComment: Comment = {
-      id: 'temp-' + Date.now(),
-      content: commentText,
-      authorId: user.id,
-      author: {
-        fName: user.fName,
-        img: user.img || '/placeholder-avatar.png'
-      },
-      createdAt: new Date().toISOString()
-    }
-    
-    // إضافة التعليق المؤقت للواجهة
-    setComments(prev => [optimisticComment, ...prev])
-    const savedCommentText = commentText
-    setCommentText('')
+    const loadingToast = toast.loading('Adding your comment...')
     
     try {
       const response = await fetch(`/api/posts/${postId}/comment`, {
@@ -160,33 +138,24 @@ export default function CommentSection({ postId }: CommentSectionProps) {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({ 
-          content: savedCommentText,
+          content: commentText,
           postId: postId,
           userId: user.id
         })
       })
       
       if (response.ok) {
-        // إذا نجح الطلب، قم بتحديث التعليقات
-        toast.success('Comment posted successfully!', {
-          position: 'bottom-right',
-          duration: 2000,
-        })
-        
-        // إعادة جلب التعليقات من الخادم
-        await fetchComments()
+        const newComment = await response.json()
+        setComments([newComment, ...comments])
+        setCommentText('')
+        toast.success('Comment added successfully', { id: loadingToast })
       } else {
-        // إزالة التعليق المؤقت إذا فشل الطلب
-        setComments(prev => prev.filter(c => c.id !== optimisticComment.id))
-        throw new Error(`Failed to post comment: ${response.status}`)
+        const errorData = await response.json()
+        throw new Error(errorData.message || 'Failed to add comment')
       }
     } catch (error) {
       console.error('Error submitting comment:', error)
-      toast.error('Failed to post comment. Please try again.', {
-        position: 'bottom-right',
-      })
-      // استعادة نص التعليق حتى لا يفقد المستخدم مدخلاته
-      setCommentText(savedCommentText)
+      toast.error(error instanceof Error ? error.message : 'An error occurred', { id: loadingToast })
     } finally {
       setSubmittingComment(false)
     }
@@ -277,7 +246,7 @@ export default function CommentSection({ postId }: CommentSectionProps) {
       </div>
       
       {/* نموذج التعليق */}
-      <form onSubmit={handleCommentSubmit} className="mb-8">
+      <form onSubmit={handleSubmitComment} className="mb-8">
         <div className="flex gap-4">
           <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
             <Image
@@ -300,14 +269,17 @@ export default function CommentSection({ postId }: CommentSectionProps) {
             <div className="flex justify-end mt-2">
               <button
                 type="submit"
-                disabled={!user || !commentText.trim() || submittingComment}
-                className={`px-4 py-2 rounded-lg text-white font-medium ${
-                  !user || !commentText.trim() || submittingComment
-                    ? "bg-gray-300 cursor-not-allowed"
-                    : "bg-blue-600 hover:bg-blue-700"
-                }`}
+                disabled={submittingComment}
+                className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2 min-w-[100px]"
               >
-                {submittingComment ? "Posting..." : "Post Comment"}
+                {submittingComment ? (
+                  <>
+                    <FaSpinner className="animate-spin" />
+                    <span>جاري الإرسال...</span>
+                  </>
+                ) : (
+                  'إرسال'
+                )}
               </button>
             </div>
           </div>
@@ -339,13 +311,17 @@ export default function CommentSection({ postId }: CommentSectionProps) {
                     <h4 className="font-medium text-gray-900">
                       {comment.author?.fName || "Anonymous"}
                     </h4>
-                    <span className="text-xs text-gray-500">
-                      {new Date(comment.createdAt).toLocaleDateString()}
-                    </span>
+                    <div className="flex items-center text-sm text-gray-500 flex-wrap gap-2">
+                      <span title={new Date(comment.createdAt).toLocaleString('en-US')}>
+                        {formatDateRelative(comment.createdAt)}
+                      </span>
+                      <span>•</span>
+                      <span>{comment.likeCount || 0} likes</span>
+                    </div>
                   </div>
                   <p className="text-gray-700">{comment.content}</p>
                   
-                  {/* إضافة زر الإعجاب للتعليق */}
+                  {/* Like button for comment */}
                   <div className="mt-3 flex justify-end">
                     <button 
                       onClick={() => handleCommentLike(comment.id)}

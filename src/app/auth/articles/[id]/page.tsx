@@ -1,17 +1,20 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams, useRouter, usePathname } from 'next/navigation'
 import IPost from '@/Types/PostTypes'
 import Loading from '@/Components/AuthArticle/ArticleLoading'
 import CommentSection from '@/Components/Comments/CommentSection'
-import { FaHeart, FaRegHeart } from 'react-icons/fa'
+import { FaHeart, FaRegHeart, FaLink, FaFacebook, FaTwitter, FaLinkedin, FaWhatsapp } from 'react-icons/fa'
 import { useUser } from '../../../../../contexts/UserContext'
 import toast, { Toaster } from 'react-hot-toast'
-import ILike from '@/Types/LikeTypes'
-import { Calendar, Share2, Bookmark, BookmarkCheck, MessageSquare, Eye, ArrowLeft } from 'lucide-react'
+import { Calendar, Bookmark, BookmarkCheck, MessageSquare, Eye, ArrowLeft } from 'lucide-react'
+import SEO from '@/Components/SEO'
+import { formatDate, formatDateRelative } from '@/utils/dateUtils'
+import { shareOnSocial, copyToClipboard } from '@/utils/shareUtils'
+import ArticleContent from '@/Components/Article/ArticleContent'
 
 export default function ArticlePage() {
   const { id } = useParams()
@@ -21,42 +24,70 @@ export default function ArticlePage() {
   const [liked, setLiked] = useState(false)
   const [likeCount, setLikeCount] = useState(0)
   const [bookmarked, setBookmarked] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [viewCount, setViewCount] = useState(0);
+  const [isCopying, setIsCopying] = useState(false);
+  const pathname = usePathname();
+  const siteUrl = 'https://blogs-app.com';
+  const articleUrl = `${siteUrl}${pathname}`;
 
-  const { user } = useUser()
+  const { user } = useUser();
+  const router = useRouter();
 
-const router = useRouter();
-  // تحسين وظيفة التحميل الأولي للتحقق من اللايكات
+  // Handle copy to clipboard
+  const handleCopyLink = useCallback(async () => {
+    if (isCopying) return;
+    
+    try {
+      setIsCopying(true);
+      await copyToClipboard(articleUrl);
+      toast.success('Link copied successfully', { position: 'bottom-right' });
+    } catch (err) {
+      toast.error('Failed to copy link', { position: 'bottom-right' });
+    } finally {
+      setTimeout(() => setIsCopying(false), 2000);
+    }
+  }, [articleUrl, isCopying]);
+  // تحسين وظيفة التحميل الأولي للتحقق من اللايكات وزيادة عداد المشاهدات
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // تحميل بيانات المقال والمقالات ذات الصلة
-        const [postResponse, relatedResponse, likesResponse] = await Promise.all([
+        setIsLoading(true);
+        
+        // Increase view count
+        await fetch(`/api/posts/${id}/view`, { method: 'POST' });
+        
+        // Load article data, related articles, likes, and view count
+        const [postResponse, relatedResponse, likesResponse, viewsResponse] = await Promise.all([
           fetch(`/api/posts/${id}`),
           fetch(`/api/posts`),
-          fetch(`/api/posts/${id}/like`)
+          fetch(`/api/posts/${id}/like`),
+          fetch(`/api/posts/${id}/views`)
         ]);
         
-        const [postData, relatedData, likesData] = await Promise.all([
+        const [postData, relatedData, likesData, viewsData] = await Promise.all([
           postResponse.json(),
           relatedResponse.json(),
-          likesResponse.json()
+          likesResponse.json(),
+          viewsResponse.json()
         ]);
 
         setPost(postData);
+        setViewCount(viewsData.count || 0);
         setRelatedPosts(relatedData.filter((p: IPost) => p.id !== id).slice(0, 3));
         
-        // تحديث عدد اللايكات من API المخصص
+        // Update like count from API
         setLikeCount(likesData.count || 0);
         
-        // التحقق مما إذا كان المستخدم قد أعجب بالمقال
+        // Check if user liked the article
         if (user) {
           const userLiked = likesData.likerIds?.includes(user.id) || 
-                           likesData.likes.some((like: ILike) => {
-                             if (typeof like === 'string') return like === user.id;
-                             return like.userId === user.id || 
-                                   (like.user && like.user.id === user.id);
-                           });
-          setLiked(userLiked);
+                          (Array.isArray(likesData.likes) && likesData.likes.some((like: any) => {
+                            if (typeof like === 'string') return like === user.id;
+                            return like.userId === user.id || 
+                                  (like.user && like.user.id === user.id);
+                          }));
+          setLiked(!!userLiked);
         }
         
         setLoading(false);
@@ -72,7 +103,7 @@ const router = useRouter();
   // تصحيح وظيفة اللايك
   const handleLike = async () => {
     if (!user) {
-      toast.error('يرجى تسجيل الدخول للإعجاب بهذا المقال', {
+      toast.error('Please log in to like this article', {
         position: 'bottom-right',
       });
       return;
@@ -134,28 +165,30 @@ const router = useRouter();
         setLiked(userLiked);
       }
       
-      // رسالة نجاح
-      toast.success(wasLiked ? 'تم إزالة الإعجاب' : 'تم الإعجاب بالمقال!', {
+      // Success message
+      toast.success(wasLiked ? 'Removed like' : 'Liked the article!', {
         position: 'bottom-right',
         duration: 2000,
       });
       
     } catch (error) {
       console.error('Error liking post:', error);
-      toast.error('فشل تحديث الإعجاب. يرجى المحاولة مرة أخرى.', {
+      toast.error('Failed to update like. Please try again.', {
         position: 'bottom-right',
       });
     }
   }
 
-  if (loading || !post) {
-    return <Loading />
+  if (loading || isLoading) {
+    return <Loading />;
+  }
+
+  if (!post) {
+    return <div>Article not found</div>;
   }
   
-  
-  
-  // تنسيق التاريخ بالعربية
-  const formattedDate = new Date(post.createdAt).toLocaleDateString("ar-EG", {
+  // Format date in English
+  const formattedDate = new Date(post.createdAt).toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
     day: "numeric"
@@ -167,17 +200,17 @@ const router = useRouter();
       try {
         await navigator.share({
           title: post.title,
-          text: `اقرأ مقال: ${post.title}`,
+          text: `Read article: ${post.title}`,
           url: window.location.href,
         });
-        toast.success('تمت مشاركة المقال بنجاح');
+        toast.success('Article shared successfully');
       } catch (error) {
         console.error('Error sharing:', error);
       }
     } else {
-      // نسخ الرابط للمتصفحات التي لا تدعم واجهة المشاركة
+      // Copy link for browsers that don't support Web Share API
       navigator.clipboard.writeText(window.location.href);
-      toast.success('تم نسخ رابط المقال');
+      toast.success('Article link copied');
     }
   };
   
@@ -185,8 +218,8 @@ const router = useRouter();
   
   const handleBookmark = () => {
     setBookmarked(!bookmarked);
-    toast.success(bookmarked ? 'تم إزالة المقال من المحفوظات' : 'تم حفظ المقال');
-    // هنا يمكن إضافة منطق لحفظ المقال في قاعدة البيانات
+    toast.success(bookmarked ? 'Article removed from bookmarks' : 'Article saved');
+    // TODO: Add logic to save article to database
   };
 
   return (
@@ -200,7 +233,7 @@ const router = useRouter();
           className="flex items-center text-indigo-600 hover:text-indigo-800 transition-colors mb-6 group"
         >
           <ArrowLeft className="h-5 w-5 ml-1 transform rotate-180 group-hover:translate-x-1 transition-transform" />
-          <span>العودة</span>
+          <span>Back</span>
         </button>
         
         <div className="flex flex-col lg:flex-row gap-8">
@@ -215,7 +248,7 @@ const router = useRouter();
                   <div className="flex items-center gap-3">
                     <div>
                       <Link href={`/author/writer/${post.authorId}`} className="text-sm font-medium text-gray-700 hover:text-indigo-600 transition-colors block text-right">
-                        {post.author?.fName || "مجهول"}
+                        {post.author?.fName || "Unknown"}
                       </Link>
                       <div className="flex items-center text-xs text-gray-500 justify-end">
                         <span>{formattedDate}</span>
@@ -225,7 +258,7 @@ const router = useRouter();
                     <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-indigo-100 shadow-sm">
                       <Image
                         src={post.author?.img || "/placeholder-avatar.png"}
-                        alt={post.author?.fName || "كاتب المقال"}
+                        alt={post.author?.fName || "Article author"}
                         width={48}
                         height={48}
                         className="object-cover"
@@ -271,7 +304,7 @@ const router = useRouter();
                 <button 
                   onClick={handleLike}
                   className="flex items-center gap-1 text-gray-500 hover:text-red-500 transition-colors"
-                  aria-label={liked ? "إزالة الإعجاب" : "أعجبني المقال"}
+                  aria-label={liked ? "Unlike this article" : "Like this article"}
                 >
                   {liked ? (
                     <FaHeart className="text-red-500" size={18} />
@@ -284,42 +317,42 @@ const router = useRouter();
                 <button 
                   onClick={handleShare}
                   className="flex items-center gap-1 text-gray-500 hover:text-indigo-500 transition-colors"
-                  aria-label="مشاركة المقال"
+                  aria-label="Share article"
                 >
                   <Share2 size={18} />
-                  <span className="ml-1 text-sm">مشاركة</span>
+                  <span className="ml-1 text-sm">Share</span>
                 </button>
                 
                 <button 
                   onClick={handleBookmark}
                   className="flex items-center gap-1 text-gray-500 hover:text-indigo-500 transition-colors"
-                  aria-label={bookmarked ? "إزالة من المحفوظات" : "حفظ المقال"}
+                  aria-label={bookmarked ? "Remove from bookmarks" : "Save article"}
                 >
                   {bookmarked ? (
                     <BookmarkCheck size={18} className="text-indigo-500" />
                   ) : (
                     <Bookmark size={18} />
                   )}
-                  <span className="ml-1 text-sm">حفظ</span>
+                  <span className="ml-1 text-sm">Save</span>
                 </button>
               </div>
               
               <div className="flex items-center gap-2">
                 <MessageSquare size={18} className="text-gray-400" />
-                <span className="text-sm text-gray-500">{Math.floor(Math.random() * 10) + 1} تعليقات</span>
+                <span className="text-sm text-gray-500">{Math.floor(Math.random() * 10) + 1} comments</span>
               </div>
             </div>
 
             {/* Article Content */}
-            <article className="prose prose-lg max-w-none rtl text-right prose-headings:text-right prose-p:text-right prose-ul:text-right prose-ol:text-right mb-12">
+            <article className="prose prose-lg max-w-none ltr text-left prose-headings:text-left prose-p:text-left prose-ul:text-left prose-ol:text-left mb-12">
               <div dangerouslySetInnerHTML={{ __html: post.content }} />
             </article>
 
             {/* Article Tags */}
             <div className="mb-12">
-              <h3 className="text-lg font-semibold mb-3 text-right">الوسوم</h3>
-              <div className="flex flex-wrap gap-2 justify-end">
-                {['مقالات', 'محتوى', 'تدوين'].map((tag) => (
+              <h3 className="text-lg font-semibold mb-3">Tags</h3>
+              <div className="flex flex-wrap gap-2">
+                {['articles', 'content', 'blogging'].map((tag) => (
                   <span key={tag} className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm hover:bg-gray-200 transition-colors cursor-pointer">
                     #{tag}
                   </span>
@@ -329,7 +362,7 @@ const router = useRouter();
             
             {/* استخدام مكون التعليقات */}
             <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-              <h3 className="text-xl font-semibold text-gray-900 mb-6 text-right">التعليقات</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-6">Comments</h3>
               <CommentSection postId={id as string} />
             </div>
           </div>
@@ -342,26 +375,26 @@ const router = useRouter();
                 <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-indigo-100 shadow-sm mx-auto mb-3">
                   <Image
                     src={post.author?.img || "/placeholder-avatar.png"}
-                    alt={post.author?.fName || "كاتب المقال"}
+                    alt={post.author?.fName || "Article author"}
                     width={80}
                     height={80}
                     className="object-cover"
                   />
                 </div>
                 <Link href={`/author/writer/${post.authorId}`} className="text-lg font-medium text-gray-900 hover:text-indigo-600 transition-colors block">
-                  {post.author?.fName || "مجهول"}
+                  {post.author?.fName || "Unknown"}
                 </Link>
-                <p className="text-sm text-gray-500 mt-1">كاتب محتوى</p>
+                <p className="text-sm text-gray-500 mt-1">Content Writer</p>
               </div>
               
               <div className="border-t border-gray-100 pt-4 mt-4">
-                <p className="text-sm text-gray-600 text-center">كاتب متخصص في المحتوى العربي ونشر المعرفة</p>
+                <p className="text-sm text-gray-600 text-center">Specialized in content creation and knowledge sharing</p>
               </div>
               
               <div className="mt-4">
                 <Link href={`/author/writer/${post.authorId}`}>
                   <button className="w-full py-2 px-4 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-lg transition-colors text-sm font-medium">
-                    عرض جميع المقالات
+                    View All Articles
                   </button>
                 </Link>
               </div>
@@ -369,7 +402,7 @@ const router = useRouter();
             
             {/* Related Articles */}
             <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 sticky top-64">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 text-right">مقالات ذات صلة</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Related Articles</h3>
               <div className="space-y-4">
                 {relatedPosts.length > 0 ? relatedPosts.map((relatedPost) => (
                   <Link 
@@ -388,7 +421,7 @@ const router = useRouter();
                           />
                         ) : (
                           <div className="w-full h-full bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center">
-                            <span className="text-indigo-300 text-lg font-light">مقال</span>
+                            <span className="text-indigo-300 text-lg font-light">Post</span>
                           </div>
                         )}
                       </div>
@@ -397,17 +430,17 @@ const router = useRouter();
                           {relatedPost.title}
                         </h4>
                         <p className="text-xs text-gray-500 mt-1">
-                          {relatedPost.author?.fName || "مجهول"}
+                          {relatedPost.author?.fName || "Unknown"}
                         </p>
                         <p className="text-xs text-gray-500 mt-1 flex items-center justify-end">
-                          <span>{new Date(relatedPost.createdAt).toLocaleDateString("ar-EG")}</span>
+                          <span>{new Date(relatedPost.createdAt).toLocaleDateString("en-US", { year: 'numeric', month: 'short', day: 'numeric' })}</span>
                           <Calendar className="w-3 h-3 mr-1 ml-1" />
                         </p>
                       </div>
                     </div>
                   </Link>
                 )) : (
-                  <p className="text-sm text-gray-500 text-center py-4">لا توجد مقالات ذات صلة حالياً</p>
+                  <p className="text-sm text-gray-500 text-center py-4">No related articles available</p>
                 )}
               </div>
             </div>

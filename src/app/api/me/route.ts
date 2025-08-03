@@ -22,7 +22,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     // جلب بيانات المستخدم
     const user = await prisma.user.findUnique({
       where: { id: decoded.id },
-      select: { id: true, fName: true, lName: true, email: true, img: true },
+      select: { id: true, fName: true, lName: true, email: true, img: true, bio: true },
     });
 
     if (!user) {

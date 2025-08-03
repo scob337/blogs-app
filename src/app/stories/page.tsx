@@ -233,7 +233,7 @@ export default function StoriesPage() {
                         <h2 className="text-xl font-bold text-gray-900 mb-2 text-right">{post.title}</h2>
                         <div className="flex items-center text-gray-500 mb-4 justify-end">
                           <span className="text-sm">
-                            {new Date(post.createdAt).toLocaleDateString("ar-EG", {
+                            {new Date(post.createdAt).toLocaleDateString("en-US", {
                               year: "numeric",
                               month: "long",
                               day: "numeric"

@@ -31,7 +31,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       secure: process.env.NODE_ENV === "production", // ❗ مهم عند التطوير
       path: "/",
       maxAge: 7 * 24 * 60 * 60, // أسبوع
-      sameSite: "strict",
+      sameSite: "lax", // Changed from "strict" to "lax" for better compatibility
     });
 
     return response;

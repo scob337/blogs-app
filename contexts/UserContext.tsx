@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation"
+import { authenticatedFetch, authenticatedPost } from "../utils/fetch";
 
 interface User {
   id: string;
@@ -15,15 +16,17 @@ interface User {
 interface UserContextType {
   user: User | null;
   loading: boolean;
-  login: (userData: User) => void; // ⬅️ دالة تسجيل الدخول
+  login: (userData: User) => void; // Login function
   logout: () => void;
+  refreshUser: () => Promise<void>; // Add refresh function
 }
 
 const UserContext = createContext<UserContextType>({
   user: null,
   loading: true,
-  login: () => {}, // ⬅️ إضافة `login`
+  login: () => {}, // Add `login`
   logout: () => {},
+  refreshUser: async () => {}, // Add refresh function
 });
 
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
@@ -31,38 +34,49 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const router = useRouter()
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await fetch("/api/me");
-        if (res.ok) {
-          const userData = await res.json();
-          setUser(userData);
-        }
-      } catch (error) {
-        console.error("Failed to fetch user:", error);
+  // Function to fetch user data
+  const fetchUser = async () => {
+    try {
+      const res = await authenticatedFetch("/api/me");
+      if (res.ok) {
+        const userData = await res.json();
+        setUser(userData);
+      } else {
         setUser(null);
-      } finally {
-        setLoading(false);
       }
-    };
+    } catch (error) {
+      console.error("Failed to fetch user:", error);
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  // Function to refresh user data
+  const refreshUser = async () => {
+    setLoading(true);
+    await fetchUser();
+  };
+
+  useEffect(() => {
     fetchUser();
   }, []);
 
-  // ✅ دالة تسجيل الدخول محسنة
-  const login = (userData: User) => {
+  // Improved login function with better error handling and redirection
+  const login = async (userData: User) => {
     setUser(userData);
-    // استخدام router.replace بدلاً من router.push لتجنب مشاكل التاريخ
-    router.replace("/auth");
+    setLoading(false);
+    
+    // Use router.replace to avoid history issues
+    // Add a small timeout to ensure state is updated before redirecting
+    setTimeout(() => {
+      router.replace("/auth");
+    }, 500); // Increased timeout to ensure token is properly set
   };
-
-
-  
 
   const logout = async () => {
     try {
-      await fetch("/api/auth/logout", { method: "POST" });
+      await authenticatedPost("/api/auth/logout", {});
       
       setUser(null);
       router.push("/") 
@@ -72,7 +86,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <UserContext.Provider value={{ user, loading, login, logout }}>
+    <UserContext.Provider value={{ user, loading, login, logout, refreshUser }}>
       {children}
     </UserContext.Provider>
   );

@@ -2,6 +2,7 @@
 
 import {  useState } from 'react';
 import { useUser } from '../../../contexts/UserContext';
+import { authenticatedPost } from '../../../utils/fetch';
 import Link from 'next/link';
 
 const Login = () => {
@@ -34,7 +35,7 @@ const LoginForm = () => {
     password: "",
   });
 
-  const { login } = useUser();
+  const { login, refreshUser } = useUser();
   const [error, setError] = useState<string | null>(null);
   const [Success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -58,11 +59,7 @@ const LoginForm = () => {
     setLoading(true);
   
     try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(information),
-      });
+      const res = await authenticatedPost("/api/auth/login", information);
   
       const userData = await res.json();
   
@@ -72,10 +69,17 @@ const LoginForm = () => {
       setSuccess("Login successful!");
       setError(null);
       
-      // تسجيل الدخول وتعيين بيانات المستخدم في السياق
-      login(userData.user);
+      // Log in and set user data in context
+      await login(userData.user);
+      
+      // Wait a bit to ensure the token is properly set in cookies
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      // Refresh user data to ensure token is properly set
+      await refreshUser();
+      
       setSuccess(null);
-      // لا نحتاج إلى router.push هنا لأن وظيفة login في UserContext ستقوم بذلك
+      // The login function in UserContext will handle the redirect
       
     } catch (err: unknown) {
       setLoading(false);
