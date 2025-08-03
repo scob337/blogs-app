@@ -71,6 +71,8 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     // Add a small timeout to ensure state is updated before redirecting
     setTimeout(() => {
       router.replace("/auth");
+      // Force reload to ensure all components are updated
+      window.location.reload();
     }, 500); // Increased timeout to ensure token is properly set
   };
 

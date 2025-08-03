@@ -188,10 +188,13 @@ const Articles = () => {
                           <h3 className="font-medium text-gray-900 hover:text-indigo-600 transition-colors">
                             {post.title}
                           </h3>
+                          <p className="text-gray-600 mt-2 text-sm line-clamp-2">
+                            {post.content.substring(0, 150)}...
+                          </p>
                           <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
                             <span className="flex items-center gap-1">
                               <Clock size={14} />
-                              {new Date(post.createdAt).toLocaleDateString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric' })}
+                              {new Date(post.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
                             </span>
                             {post.likes && post.likes.length > 0 && (
                               <span className="flex items-center gap-1">
@@ -223,7 +226,7 @@ const Articles = () => {
             {/* All Articles Section */}
             <div>
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
-                <h1 className="text-2xl font-bold text-gray-900">أحدث المقالات</h1>
+                <h1 className="text-2xl font-bold text-gray-900">Latest Articles</h1>
                 <div className="flex gap-3 w-full sm:w-auto">
                   {/* Sort Dropdown */}
                   <div className="relative">
@@ -259,7 +262,7 @@ const Articles = () => {
                     href="/auth/articles/create"
                     className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition flex items-center flex-shrink-0"
                   >
-                    <Pencil className="w-4 h-4 ml-2" /> كتابة مقال
+                    <Pencil className="w-4 h-4 ml-2" /> Write Article
                   </Link>
                 </div>
               </div>
@@ -270,12 +273,12 @@ const Articles = () => {
                 </div>
               ) : posts.length === 0 ? (
                 <div className="text-center py-12 bg-white rounded-xl shadow-sm border border-gray-100">
-                  <p className="text-gray-600 mb-4">لا توجد مقالات متاحة حاليًا</p>
+                  <p className="text-gray-600 mb-4">No articles available at the moment</p>
                   <Link
                     href="/auth/articles/create"
                     className="inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition"
                   >
-                    ابدأ بكتابة مقالك الأول
+                    Start writing your first article
                   </Link>
                 </div>
               ) : (
@@ -293,7 +296,7 @@ const Articles = () => {
                           <div className="flex items-center justify-between text-sm text-gray-500">
                             <div className="flex items-center">
                               <span className="ml-2">
-                                {new Date(post.createdAt).toLocaleDateString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric' })}
+                                {new Date(post.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
                               </span>
                             </div>
                             <div className="flex items-center gap-4">
@@ -349,29 +352,29 @@ const Articles = () => {
                         href={`/author/${user.id}`} 
                         className="text-xs bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full hover:bg-indigo-100 transition flex items-center"
                       >
-                        <User className="w-3 h-3 ml-1" /> الملف الشخصي
+                        <User className="w-3 h-3 ml-1" /> My Profile
                       </Link>
                       <Link 
                         href="/settings" 
                         className="text-xs bg-gray-50 text-gray-600 px-3 py-1 rounded-full hover:bg-gray-100 transition flex items-center"
                       >
-                        <Settings className="w-3 h-3 ml-1" /> الإعدادات
+                        <Settings className="w-3 h-3 ml-1" /> Settings
                       </Link>
                     </div>
                   </div>
                 </div>
                 
                 <div className="border-t border-gray-100 pt-4 mt-4">
-                  <h4 className="text-sm font-medium text-gray-900 mb-3">إحصائياتك</h4>
+                  <h4 className="text-sm font-medium text-gray-900 mb-3">Your Statistics</h4>
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
-                      <span className="text-gray-600 text-sm">المقالات المنشورة</span>
+                      <span className="text-gray-600 text-sm">Articles Published</span>
                       <span className="font-medium text-sm">
                         {loadingUserPosts ? '...' : userPosts.length}
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-gray-600 text-sm">إجمالي المشاهدات</span>
+                      <span className="text-gray-600 text-sm">Total Views</span>
                       <span className="font-medium text-sm">
                         {loadingUserPosts ? '...' : userPosts.reduce((sum, post) => sum + (post.views || 0), 0)}
                       </span>
@@ -383,47 +386,47 @@ const Articles = () => {
             
             {/* Quick Actions */}
             <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">إجراءات سريعة</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
               <div className="space-y-3">
                 <Link 
                   href="/auth/articles/create" 
                   className="flex items-center text-indigo-600 hover:text-indigo-700 font-medium p-2 hover:bg-indigo-50 rounded-lg transition-colors"
                 >
-                  <Pencil className="w-4 h-4 ml-2" /> كتابة مقال جديد
+                  <Pencil className="w-4 h-4 ml-2" /> Write New Article
                 </Link>
                 <Link 
                   href="/stories" 
                   className="flex items-center text-gray-700 hover:text-indigo-600 p-2 hover:bg-gray-50 rounded-lg transition-colors"
                 >
-                  <span className="ml-2">مقالاتي</span>
+                  <span className="ml-2">My Articles</span>
                 </Link>
                 <Link 
                   href="/bookmarks" 
                   className="flex items-center text-gray-700 hover:text-indigo-600 p-2 hover:bg-gray-50 rounded-lg transition-colors"
                 >
-                  <span className="ml-2">المحفوظات</span>
+                  <span className="ml-2">Bookmarks</span>
                 </Link>
               </div>
             </div>
             
             {/* Popular Tags */}
             <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">الوسوم الشائعة</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Popular Tags</h3>
               <div className="flex flex-wrap gap-2">
                 <Link href="/tag/technology" className="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-sm hover:bg-blue-100 transition-colors">
-                  تكنولوجيا
+                  Technology
                 </Link>
                 <Link href="/tag/design" className="px-3 py-1 bg-green-50 text-green-600 rounded-full text-sm hover:bg-green-100 transition-colors">
-                  تصميم
+                  Design
                 </Link>
                 <Link href="/tag/development" className="px-3 py-1 bg-purple-50 text-purple-600 rounded-full text-sm hover:bg-purple-100 transition-colors">
-                  تطوير
+                  Development
                 </Link>
                 <Link href="/tag/ui-ux" className="px-3 py-1 bg-orange-50 text-orange-600 rounded-full text-sm hover:bg-orange-100 transition-colors">
-                  واجهة المستخدم
+                  UI/UX
                 </Link>
                 <Link href="/tag/programming" className="px-3 py-1 bg-red-50 text-red-600 rounded-full text-sm hover:bg-red-100 transition-colors">
-                  برمجة
+                  Programming
                 </Link>
               </div>
             </div>

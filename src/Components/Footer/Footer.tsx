@@ -66,7 +66,7 @@ const Footer = () => {
 
           {/* Latest Articles */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white relative pb-2 after:content-[''] after:absolute after:bottom-0 after:right-0 after:h-0.5 after:w-12 after:bg-indigo-500">أحدث المقالات</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4 relative before:content-[''] before:absolute before:bottom-0 before:left-0 before:w-12 before:h-0.5 after:content-[''] after:absolute after:bottom-0 after:left-12 after:w-12 after:h-0.5 after:bg-indigo-500">Latest Articles</h3>
             <ul className="space-y-2">
               <li>
                 <Link href="/article/html-css" className="text-gray-300 hover:text-white transition-colors block">

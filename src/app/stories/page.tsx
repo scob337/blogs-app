@@ -5,7 +5,7 @@ import { useUser } from '../../../contexts/UserContext';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Edit2, Trash2, Plus, Search, Calendar, Eye, Heart, MessageSquare } from 'lucide-react';
+import { Edit2, Trash2, Plus, Search, Calendar, Eye, Heart, MessageSquare, Pencil } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import IPost from '@/Types/PostTypes';
 
@@ -94,10 +94,10 @@ export default function StoriesPage() {
       const updatedPosts = posts.filter(post => post.id !== deletePostId);
       setPosts(updatedPosts);
       setFilteredPosts(updatedPosts);
-      toast.success('تم حذف المقال بنجاح');
+      toast.success('Article deleted successfully');
     } catch (error) {
       console.error('Error deleting post:', error);
-      toast.error('حدث خطأ أثناء حذف المقال');
+      toast.error('An error occurred while deleting the article');
     } finally {
       setShowDeleteModal(false);
       setDeletePostId(null);
@@ -122,11 +122,11 @@ export default function StoriesPage() {
       <Toaster position="bottom-right" />
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-          <h1 className="text-3xl font-bold text-gray-900 text-right md:text-right w-full md:w-auto">مقالاتي</h1>
+          <h1 className="text-3xl font-bold text-gray-900 text-right md:text-right w-full md:w-auto">My Articles</h1>
           <Link href="/auth/articles/create" className="w-full md:w-auto">
             <button className="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg flex items-center justify-center transition-colors duration-300 shadow-md hover:shadow-lg">
-              <Plus size={18} className="ml-2 rtl:mr-2 rtl:ml-0" />
-              مقال جديد
+              <Pencil className="w-4 h-4 mr-2" />
+              Write Article
             </button>
           </Link>
         </div>
@@ -199,14 +199,19 @@ export default function StoriesPage() {
             </button>
           </div>
         ) : posts.length === 0 ? (
-          <div className="bg-white rounded-xl shadow-md p-8 text-center">
-            <h2 className="text-xl font-medium text-gray-700 mb-4">لا توجد مقالات بعد</h2>
-            <p className="text-gray-500 mb-6">ابدأ بإنشاء أول مقال لك وشارك أفكارك مع العالم!</p>
-            <Link href="/auth/articles/create">
-              <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg transition-colors duration-300 shadow-md hover:shadow-lg">
-                إنشاء مقال جديد
-              </button>
-            </Link>
+          <div className="text-center py-12">
+            <div className="max-w-md mx-auto">
+              <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Pencil className="w-12 h-12 text-gray-400" />
+              </div>
+              <h2 className="text-xl font-medium text-gray-700 mb-4">No articles yet</h2>
+              <p className="text-gray-500 mb-6">Start writing your first article to share your thoughts with the world.</p>
+              <Link href="/auth/articles/create">
+                <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg transition-colors duration-300">
+                  Write Your First Article
+                </button>
+              </Link>
+            </div>
           </div>
         ) : viewMode === 'list' ? (
           <div className="grid grid-cols-1 gap-6">
@@ -232,12 +237,8 @@ export default function StoriesPage() {
                       <div className="w-full">
                         <h2 className="text-xl font-bold text-gray-900 mb-2 text-right">{post.title}</h2>
                         <div className="flex items-center text-gray-500 mb-4 justify-end">
-                          <span className="text-sm">
-                            {new Date(post.createdAt).toLocaleDateString("en-US", {
-                              year: "numeric",
-                              month: "long",
-                              day: "numeric"
-                            })}
+                          <span className="text-gray-500 text-sm">
+                            {new Date(post.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
                           </span>
                           <Calendar className="w-4 h-4 mr-1 ml-2" />
                         </div>
