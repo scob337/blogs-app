@@ -7,7 +7,6 @@ import { SessionProvider } from "next-auth/react";
 import { UserProvider, useUser } from "../../contexts/UserContext";
 import Loading from "@/Components/Loading";
 import { useRedirectBasedOnUser } from "../../contexts/useRedirectBasedOnUser";
-import SEO from "@/Components/SEO";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

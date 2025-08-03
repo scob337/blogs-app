@@ -1,20 +1,24 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useParams, useRouter, usePathname } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import IPost from '@/Types/PostTypes'
 import Loading from '@/Components/AuthArticle/ArticleLoading'
 import CommentSection from '@/Components/Comments/CommentSection'
-import { FaHeart, FaRegHeart, FaLink, FaFacebook, FaTwitter, FaLinkedin, FaWhatsapp } from 'react-icons/fa'
+import { FaHeart, FaRegHeart } from 'react-icons/fa'
 import { useUser } from '../../../../../contexts/UserContext'
 import toast, { Toaster } from 'react-hot-toast'
-import { Calendar, Bookmark, BookmarkCheck, MessageSquare, Eye, ArrowLeft } from 'lucide-react'
-import SEO from '@/Components/SEO'
-import { formatDate, formatDateRelative } from '@/utils/dateUtils'
-import { shareOnSocial, copyToClipboard } from '@/utils/shareUtils'
-import ArticleContent from '@/Components/Article/ArticleContent'
+import { Calendar, Bookmark, BookmarkCheck, MessageSquare, Eye, ArrowLeft, Share2 } from 'lucide-react'
+
+interface ILike {
+  id?: string;
+  userId?: string;
+  user?: {
+    id: string;
+  };
+}
 
 export default function ArticlePage() {
   const { id } = useParams()
@@ -25,29 +29,10 @@ export default function ArticlePage() {
   const [likeCount, setLikeCount] = useState(0)
   const [bookmarked, setBookmarked] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [viewCount, setViewCount] = useState(0);
-  const [isCopying, setIsCopying] = useState(false);
-  const pathname = usePathname();
-  const siteUrl = 'https://blogs-app.com';
-  const articleUrl = `${siteUrl}${pathname}`;
 
   const { user } = useUser();
   const router = useRouter();
 
-  // Handle copy to clipboard
-  const handleCopyLink = useCallback(async () => {
-    if (isCopying) return;
-    
-    try {
-      setIsCopying(true);
-      await copyToClipboard(articleUrl);
-      toast.success('Link copied successfully', { position: 'bottom-right' });
-    } catch (err) {
-      toast.error('Failed to copy link', { position: 'bottom-right' });
-    } finally {
-      setTimeout(() => setIsCopying(false), 2000);
-    }
-  }, [articleUrl, isCopying]);
   // تحسين وظيفة التحميل الأولي للتحقق من اللايكات وزيادة عداد المشاهدات
   useEffect(() => {
     const fetchData = async () => {
@@ -82,7 +67,7 @@ export default function ArticlePage() {
         // Check if user liked the article
         if (user) {
           const userLiked = likesData.likerIds?.includes(user.id) || 
-                          (Array.isArray(likesData.likes) && likesData.likes.some((like: any) => {
+                          (Array.isArray(likesData.likes) && likesData.likes.some((like: ILike | string) => {
                             if (typeof like === 'string') return like === user.id;
                             return like.userId === user.id || 
                                   (like.user && like.user.id === user.id);

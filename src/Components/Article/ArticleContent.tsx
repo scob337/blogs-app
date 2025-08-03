@@ -10,7 +10,7 @@ export default function ArticleContent({ content }: ArticleContentProps) {
     // Add target="_blank" and rel="noopener noreferrer" to all external links
     const processedHtml = html.replace(
       /<a\s+(?:[^>]*?\s+)?href=(["'])(.*?)\1/g,
-      (match, _, href) => {
+      (match) => {
         // Skip if already processed
         if (match.includes('target=')) return match;
         return `${match} target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 underline transition-colors"`;

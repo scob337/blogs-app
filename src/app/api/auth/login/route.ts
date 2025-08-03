@@ -21,9 +21,15 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     const token: string = generateToken(user.id);
 
-    const { password: _, ...userWithoutPassword } = user;
-    console.log(_)
     // ✅ إنشاء الاستجابة
+    const userWithoutPassword = {
+      id: user.id,
+      fName: user.fName,
+      lName: user.lName,
+      email: user.email,
+      img: user.img,
+      bio: user.bio,
+    };
     const response = NextResponse.json({ user: userWithoutPassword });
 
     response.cookies.set("token", token, {

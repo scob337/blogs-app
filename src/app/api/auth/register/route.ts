@@ -31,7 +31,14 @@ export async function POST(req: Request) {
     const token = generateToken(user.id);
     
     // ✅ إنشاء الاستجابة مع التوكن في الـ cookies
-    const { password: _, ...userWithoutPassword } = user;
+    const userWithoutPassword = {
+      id: user.id,
+      fName: user.fName,
+      lName: user.lName,
+      email: user.email,
+      img: user.img,
+      bio: user.bio,
+    };
     const response = NextResponse.json({ user: userWithoutPassword });
 
     response.cookies.set("token", token, {
