@@ -88,7 +88,7 @@ export default function SettingsPage() {
 
     // Validate inputs
     if (!userSettings.fName.trim() || !userSettings.lName.trim()) {
-      toast.error('يرجى إدخال الاسم الأول والأخير');
+      toast.error('Please enter your first and last name');
       setIsSubmitting(false);
       return;
     }
@@ -99,7 +99,7 @@ export default function SettingsPage() {
       if (profileImage) {
         // Check file size (2MB limit)
         if (profileImage.size > 2 * 1024 * 1024) {
-          toast.error('حجم الصورة يجب أن يكون أقل من 2 ميجابايت');
+          toast.error('Image size must be less than 2MB');
           setIsSubmitting(false);
           return;
         }
@@ -127,12 +127,12 @@ export default function SettingsPage() {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message || 'حدث خطأ أثناء تحديث المعلومات');
+        throw new Error(error.message || 'An error occurred while updating information');
       }
 
-      toast.success('تم تحديث ملفك الشخصي بنجاح');
+      toast.success('Your profile has been updated successfully');
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'حدث خطأ أثناء تحديث المعلومات');
+      toast.error(error instanceof Error ? error.message : 'An error occurred while updating information');
     } finally {
       setIsSubmitting(false);
     }
@@ -144,13 +144,13 @@ export default function SettingsPage() {
 
     // Validate password
     if (passwordSettings.newPassword !== passwordSettings.confirmPassword) {
-      toast.error('كلمات المرور الجديدة غير متطابقة');
+      toast.error('New passwords do not match');
       setIsSubmitting(false);
       return;
     }
 
     if (passwordSettings.newPassword.length < 8) {
-      toast.error('يجب أن تكون كلمة المرور الجديدة 8 أحرف على الأقل');
+      toast.error('New password must be at least 8 characters long');
       setIsSubmitting(false);
       return;
     }
@@ -169,7 +169,7 @@ export default function SettingsPage() {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message || 'حدث خطأ أثناء تغيير كلمة المرور');
+        throw new Error(error.message || 'An error occurred while changing password');
       }
 
       setPasswordSettings({
@@ -178,9 +178,9 @@ export default function SettingsPage() {
         confirmPassword: ''
       });
 
-      toast.success('تم تغيير كلمة المرور بنجاح');
+      toast.success('Password changed successfully');
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'حدث خطأ أثناء تغيير كلمة المرور');
+      toast.error(error instanceof Error ? error.message : 'An error occurred while changing password');
     } finally {
       setIsSubmitting(false);
     }
@@ -190,7 +190,7 @@ export default function SettingsPage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-50 via-white to-gray-100">
         <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-600 mb-4"></div>
-        <p className="text-gray-600 font-medium text-lg">جاري تحميل البيانات...</p>
+                 <p className="text-gray-600 font-medium text-lg">Loading data...</p>
       </div>
     );
   }
@@ -204,12 +204,12 @@ export default function SettingsPage() {
             <Link href="/auth" className="mr-4 p-2 rounded-full hover:bg-gray-200 transition-colors">
               <ArrowLeft className="w-5 h-5 text-gray-700" />
             </Link>
-            <h1 className="text-3xl font-bold text-gray-900">إعدادات الحساب</h1>
+                         <h1 className="text-3xl font-bold text-gray-900">Account Settings</h1>
           </div>
           {user && (
             <Link href={`/author/${user.id}`} className="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-4 py-2 rounded-lg transition flex items-center">
               <UserCircle className="w-5 h-5 ml-2" />
-              عرض الملف الشخصي
+                             View Profile
             </Link>
           )}
         </div>
@@ -222,14 +222,14 @@ export default function SettingsPage() {
               className={`px-6 py-4 text-sm font-medium flex items-center ${activeTab === 'profile' ? 'text-blue-600 border-b-2 border-blue-500' : 'text-gray-500 hover:text-gray-700'}`}
             >
               <User className="w-4 h-4 ml-2" />
-              الملف الشخصي
+                             Profile
             </button>
             <button
               onClick={() => setActiveTab('password')}
               className={`px-6 py-4 text-sm font-medium flex items-center ${activeTab === 'password' ? 'text-blue-600 border-b-2 border-blue-500' : 'text-gray-500 hover:text-gray-700'}`}
             >
               <Lock className="w-4 h-4 ml-2" />
-              كلمة المرور
+                             Password
             </button>
           </div>
 
@@ -240,7 +240,7 @@ export default function SettingsPage() {
                 <div className="relative w-36 h-36 rounded-full overflow-hidden border-4 border-blue-100 mb-4 shadow-md group">
                   <Image
                     src={preview || '/placeholder-avatar.png'}
-                    alt="الصورة الشخصية"
+                    alt="Profile Image"
                     fill
                     className="object-cover"
                   />
@@ -250,7 +250,7 @@ export default function SettingsPage() {
                 </div>
                 <label className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg cursor-pointer transition flex items-center">
                   <Camera className="w-5 h-5 ml-2" />
-                  تغيير الصورة
+                                     Change Image
                   <input
                     type="file"
                     accept="image/*"
@@ -258,28 +258,27 @@ export default function SettingsPage() {
                     className="hidden"
                   />
                 </label>
-                <p className="text-xs text-gray-500 mt-2">الحد الأقصى لحجم الصورة: 2 ميجابايت</p>
+                <p className="text-xs text-gray-500 mt-2">Maximum image size: 2MB</p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label htmlFor="fName" className="block text-sm font-medium text-gray-700 mb-1 text-right">
-                    الاسم الأول
-                  </label>
+                                  <label htmlFor="fName" className="block text-sm font-medium text-gray-700 mb-1">
+                  First Name
+                </label>
                   <input
                     type="text"
                     id="fName"
                     name="fName"
                     value={userSettings.fName}
                     onChange={handleUserChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent text-right"
-                    dir="rtl"
-                    placeholder="أدخل اسمك الأول"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+                    placeholder="Enter your first name"
                   />
                 </div>
                 <div>
-                  <label htmlFor="lName" className="block text-sm font-medium text-gray-700 mb-1 text-right">
-                    الاسم الأخير
+                  <label htmlFor="lName" className="block text-sm font-medium text-gray-700 mb-1">
+                    Last Name
                   </label>
                   <input
                     type="text"
@@ -287,16 +286,15 @@ export default function SettingsPage() {
                     name="lName"
                     value={userSettings.lName}
                     onChange={handleUserChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent text-right"
-                    dir="rtl"
-                    placeholder="أدخل اسمك الأخير"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+                    placeholder="Enter your last name"
                   />
                 </div>
               </div>
 
               <div>
-                <label htmlFor="bio" className="block text-sm font-medium text-gray-700 mb-1 text-right">
-                  نبذة شخصية
+                <label htmlFor="bio" className="block text-sm font-medium text-gray-700 mb-1">
+                  Bio
                 </label>
                 <textarea
                   id="bio"
@@ -304,9 +302,8 @@ export default function SettingsPage() {
                   value={userSettings.bio}
                   onChange={handleUserChange}
                   rows={4}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent text-right"
-                  placeholder="اكتب نبذة قصيرة عن نفسك..."
-                  dir="rtl"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+                  placeholder="Write a short bio about yourself..."
                   maxLength={300}
                 />
                 <p className="text-xs text-gray-500 mt-1 text-left">{userSettings.bio.length}/300</p>
@@ -319,7 +316,7 @@ export default function SettingsPage() {
                   className={`px-6 py-2.5 rounded-lg text-white font-medium flex items-center ${isSubmitting ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 transition-colors'}`}
                 >
                   <Save className="w-5 h-5 ml-2" />
-                  {isSubmitting ? 'جاري الحفظ...' : 'حفظ التغييرات'}
+                  {isSubmitting ? 'Saving...' : 'Save Changes'}
                 </button>
               </div>
             </form>
@@ -332,15 +329,15 @@ export default function SettingsPage() {
                 <div className="flex items-start">
                   <Shield className="w-5 h-5 text-amber-600 mt-0.5 ml-3" />
                   <div>
-                    <h3 className="text-amber-800 font-medium text-right">تغيير كلمة المرور</h3>
-                    <p className="text-amber-700 text-sm text-right">تأكد من اختيار كلمة مرور قوية تحتوي على أحرف وأرقام ورموز.</p>
+                    <h3 className="text-amber-800 font-medium">Change Password</h3>
+                    <p className="text-amber-700 text-sm">Make sure to choose a strong password that contains letters, numbers, and symbols.</p>
                   </div>
                 </div>
               </div>
               
               <div>
-                <label htmlFor="currentPassword" className="block text-sm font-medium text-gray-700 mb-1 text-right">
-                  كلمة المرور الحالية
+                <label htmlFor="currentPassword" className="block text-sm font-medium text-gray-700 mb-1">
+                  Current Password
                 </label>
                 <div className="relative">
                   <input
@@ -349,17 +346,16 @@ export default function SettingsPage() {
                     name="currentPassword"
                     value={passwordSettings.currentPassword}
                     onChange={handlePasswordChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent text-right"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
                     required
-                    dir="rtl"
                   />
                   <KeyRound className="absolute left-3 top-3.5 text-gray-400 w-5 h-5" />
                 </div>
               </div>
 
               <div>
-                <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-1 text-right">
-                  كلمة المرور الجديدة
+                <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-1">
+                  New Password
                 </label>
                 <div className="relative">
                   <input
@@ -368,19 +364,18 @@ export default function SettingsPage() {
                     name="newPassword"
                     value={passwordSettings.newPassword}
                     onChange={handlePasswordChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent text-right"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
                     required
-                    dir="rtl"
                     minLength={8}
                   />
                   <KeyRound className="absolute left-3 top-3.5 text-gray-400 w-5 h-5" />
                 </div>
-                <p className="text-xs text-gray-500 mt-1 text-right">يجب أن تكون كلمة المرور 8 أحرف على الأقل</p>
+                <p className="text-xs text-gray-500 mt-1">Password must be at least 8 characters long</p>
               </div>
 
               <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1 text-right">
-                  تأكيد كلمة المرور الجديدة
+                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+                  Confirm New Password
                 </label>
                 <div className="relative">
                   <input
@@ -389,9 +384,8 @@ export default function SettingsPage() {
                     name="confirmPassword"
                     value={passwordSettings.confirmPassword}
                     onChange={handlePasswordChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent text-right"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
                     required
-                    dir="rtl"
                   />
                   <KeyRound className="absolute left-3 top-3.5 text-gray-400 w-5 h-5" />
                 </div>
@@ -404,7 +398,7 @@ export default function SettingsPage() {
                   className={`px-6 py-2.5 rounded-lg text-white font-medium flex items-center ${isSubmitting ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 transition-colors'}`}
                 >
                   <Lock className="w-5 h-5 ml-2" />
-                  {isSubmitting ? 'جاري التغيير...' : 'تغيير كلمة المرور'}
+                  {isSubmitting ? 'Changing...' : 'Change Password'}
                 </button>
               </div>
             </form>

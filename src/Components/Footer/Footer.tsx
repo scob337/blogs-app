@@ -15,10 +15,10 @@ const Footer = () => {
               <Logo />
             </div>
             <p className="text-gray-300 text-sm leading-relaxed">
-              منصة المدونات العربية هي منصة حديثة للتدوين توفر محتوى غني ومتنوع
-              في مختلف المجالات، تتيح للكتاب مشاركة أفكارهم ومقالاتهم الملهمة مع الجميع.
+              Blogs App is a modern blogging platform that provides rich and diverse content
+              in various fields, allowing writers to share their inspiring thoughts and articles with everyone.
             </p>
-            <div className="flex space-x-4 rtl:space-x-reverse pt-4">
+            <div className="flex space-x-4 pt-4">
               <a href="#" className="text-gray-300 hover:text-white transition-colors">
                 <Facebook className="w-5 h-5" />
               </a>
@@ -39,26 +39,26 @@ const Footer = () => {
 
           {/* Quick Links */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white relative pb-2 after:content-[''] after:absolute after:bottom-0 after:right-0 after:h-0.5 after:w-12 after:bg-indigo-500">روابط سريعة</h3>
+            <h3 className="text-lg font-semibold text-white relative pb-2 after:content-[''] after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-12 after:bg-indigo-500">Quick Links</h3>
             <ul className="space-y-2">
               <li>
                 <Link href="/categories" className="text-gray-300 hover:text-white transition-colors flex items-center">
-                  <span className="ml-2">•</span> التصنيفات
+                  <span className="mr-2">•</span> Categories
                 </Link>
               </li>
               <li>
                 <Link href="/popular" className="text-gray-300 hover:text-white transition-colors flex items-center">
-                  <span className="ml-2">•</span> المقالات الشائعة
+                  <span className="mr-2">•</span> Popular Articles
                 </Link>
               </li>
               <li>
                 <Link href="/authors" className="text-gray-300 hover:text-white transition-colors flex items-center">
-                  <span className="ml-2">•</span> الكتّاب
+                  <span className="mr-2">•</span> Authors
                 </Link>
               </li>
               <li>
                 <Link href="/about" className="text-gray-300 hover:text-white transition-colors flex items-center">
-                  <span className="ml-2">•</span> من نحن
+                  <span className="mr-2">•</span> About Us
                 </Link>
               </li>
             </ul>
@@ -66,26 +66,26 @@ const Footer = () => {
 
           {/* Latest Articles */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4 relative before:content-[''] before:absolute before:bottom-0 before:left-0 before:w-12 before:h-0.5 after:content-[''] after:absolute after:bottom-0 after:left-12 after:w-12 after:h-0.5 after:bg-indigo-500">Latest Articles</h3>
+            <h3 className="text-lg font-semibold text-white mb-4 relative pb-2 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-12 after:h-0.5 after:bg-indigo-500">Latest Articles</h3>
             <ul className="space-y-2">
               <li>
                 <Link href="/article/html-css" className="text-gray-300 hover:text-white transition-colors block">
-                  دليل المبتدئين إلى HTML و CSS
+                  Beginner&apos;s Guide to HTML and CSS
                 </Link>
               </li>
               <li>
                 <Link href="/article/flexbox" className="text-gray-300 hover:text-white transition-colors block">
-                  ما هو Flexbox وكيفية استخدامه؟
+                  What is Flexbox and How to Use It?
                 </Link>
               </li>
               <li>
                 <Link href="/article/tailwindcss" className="text-gray-300 hover:text-white transition-colors block">
-                  كيف يعزز TailwindCSS الإنتاجية؟
+                  How TailwindCSS Boosts Productivity?
                 </Link>
               </li>
               <li>
                 <Link href="/article/responsive-tips" className="text-gray-300 hover:text-white transition-colors block">
-                  5 نصائح لموقع ويب متجاوب
+                  5 Tips for a Responsive Website
                 </Link>
               </li>
             </ul>
@@ -93,18 +93,18 @@ const Footer = () => {
 
           {/* Contact Info */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white relative pb-2 after:content-[''] after:absolute after:bottom-0 after:right-0 after:h-0.5 after:w-12 after:bg-indigo-500">تواصل معنا</h3>
+            <h3 className="text-lg font-semibold text-white relative pb-2 after:content-[''] after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-12 after:bg-indigo-500">Contact Us</h3>
             <ul className="space-y-3">
               <li className="flex items-start">
-                <MapPin className="w-5 h-5 text-indigo-400 ml-3 mt-0.5" />
-                <span className="text-gray-300">القاهرة، مصر</span>
+                <MapPin className="w-5 h-5 text-indigo-400 mr-3 mt-0.5" />
+                <span className="text-gray-300">Cairo, Egypt</span>
               </li>
               <li className="flex items-center">
-                <Phone className="w-5 h-5 text-indigo-400 ml-3" />
+                <Phone className="w-5 h-5 text-indigo-400 mr-3" />
                 <span className="text-gray-300">+20 123 456 7890</span>
               </li>
               <li className="flex items-center">
-                <Mail className="w-5 h-5 text-indigo-400 ml-3" />
+                <Mail className="w-5 h-5 text-indigo-400 mr-3" />
                 <span className="text-gray-300">info@blogs-app.com</span>
               </li>
             </ul>
@@ -114,23 +114,23 @@ const Footer = () => {
         <div className="border-t border-indigo-800 mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400 text-sm">
-              &copy; {new Date().getFullYear()} منصة المدونات العربية. جميع الحقوق محفوظة.
+              &copy; {new Date().getFullYear()} Blogs App. All rights reserved.
             </p>
             <div className="mt-4 md:mt-0">
-              <ul className="flex space-x-6 rtl:space-x-reverse">
+              <ul className="flex space-x-6">
                 <li>
                   <Link href="/privacy" className="text-gray-400 hover:text-white text-sm transition-colors">
-                    سياسة الخصوصية
+                    Privacy Policy
                   </Link>
                 </li>
                 <li>
                   <Link href="/terms" className="text-gray-400 hover:text-white text-sm transition-colors">
-                    شروط الاستخدام
+                    Terms of Service
                   </Link>
                 </li>
                 <li>
                   <Link href="/cookies" className="text-gray-400 hover:text-white text-sm transition-colors">
-                    سياسة ملفات تعريف الارتباط
+                    Cookie Policy
                   </Link>
                 </li>
               </ul>

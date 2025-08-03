@@ -163,28 +163,26 @@ export default function CreateArticle() {
         <div className="p-6">
           <div className="space-y-6">
             <div>
-              <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1 text-right">عنوان المقال</label>
+              <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">Article Title</label>
               <input
                 id="title"
                 type="text"
-                placeholder="أدخل عنوان المقال هنا..."
+                placeholder="Enter article title here..."
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors text-right"
-                dir="rtl"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
               />
             </div>
 
             <div>
-              <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1 text-right">فئة المقال</label>
+              <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">Article Category</label>
               <select
                 id="category"
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors text-right"
-                dir="rtl"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
               >
-                <option value="">اختر فئة...</option>
+                <option value="">Choose category...</option>
                 {categories.map((cat) => (
                   <option key={cat} value={cat}>{cat}</option>
                 ))}

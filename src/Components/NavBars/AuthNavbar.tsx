@@ -59,30 +59,30 @@ const AuthNav = () => {
             </Link>
             
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center space-x-1 mr-4 rtl:space-x-reverse rtl:ml-4 rtl:mr-0">
+            <nav className="hidden md:flex items-center space-x-1 ml-4">
               <Link 
                 href="/auth" 
                 className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${scrolled ? 'text-gray-700 hover:text-indigo-600 hover:bg-gray-100' : 'text-white hover:bg-indigo-500'}`}
               >
-                الرئيسية
+                Home
               </Link>
               <Link 
                 href="/stories" 
                 className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${scrolled ? 'text-gray-700 hover:text-indigo-600 hover:bg-gray-100' : 'text-white hover:bg-indigo-500'}`}
               >
-                المقالات
+                Articles
               </Link>
               <Link 
                 href="/authors" 
                 className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${scrolled ? 'text-gray-700 hover:text-indigo-600 hover:bg-gray-100' : 'text-white hover:bg-indigo-500'}`}
               >
-                الكتّاب
+                Authors
               </Link>
             </nav>
           </div>
 
           {/* Actions */}
-          <div className="flex items-center space-x-4 rtl:space-x-reverse">
+          <div className="flex items-center space-x-4">
             {/* Search Button */}
             <button 
               onClick={() => setSearchOpen(!searchOpen)}
@@ -101,8 +101,8 @@ const AuthNav = () => {
               href="/auth/articles/create" 
               className={`hidden md:flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${scrolled ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'bg-white text-indigo-600 hover:bg-gray-100'}`}
             >
-              <Pencil className="h-4 w-4 ml-2 rtl:mr-0" />
-              اكتب مقالاً
+              <Pencil className="h-4 w-4 mr-2" />
+              Write Article
             </Link>
 
             {/* Mobile Write Button (Icon Only) */}
@@ -130,7 +130,7 @@ const AuthNav = () => {
 
               {/* Dropdown Menu */}
               {menuOpen && (
-                <div className="absolute left-0 rtl:right-0 rtl:left-auto top-full mt-2 w-56 bg-white text-black rounded-md shadow-lg py-2 z-50 animate-fade-in-down">
+                <div className="absolute right-0 top-full mt-2 w-56 bg-white text-black rounded-md shadow-lg py-2 z-50 animate-fade-in-down">
                   {/* User Info */}
                   <div className="px-4 py-3 border-b border-gray-100">
                     <p className="text-sm font-medium text-gray-900">{user?.fName} {user?.lName}</p>
@@ -140,21 +140,21 @@ const AuthNav = () => {
                   {/* User Profile Link */}
                   {user && (
                     <Link href={`/author/${user.id}`} className="flex hover:bg-gray-100 transition items-center px-4 py-2 text-sm cursor-pointer">
-                      <User className="w-4 h-4 ml-2 rtl:mr-2 rtl:ml-0" /> الملف الشخصي
+                      <User className="w-4 h-4 mr-2" /> Profile
                     </Link>
                   )}
                   
                   <Link href="/stories" className="flex hover:bg-gray-100 transition items-center px-4 py-2 text-sm cursor-pointer">
-                    <BookOpen className="w-4 h-4 ml-2 rtl:mr-2 rtl:ml-0" /> المقالات
+                    <BookOpen className="w-4 h-4 mr-2" /> Articles
                   </Link>
                   <Link href="/settings" className="flex hover:bg-gray-100 transition items-center px-4 py-2 text-sm cursor-pointer">
-                    <Settings className="w-4 h-4 ml-2 rtl:mr-2 rtl:ml-0" /> الإعدادات
+                    <Settings className="w-4 h-4 mr-2" /> Settings
                   </Link>
                   <button 
                     onClick={() => handleLogout()}
-                    className="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-gray-100 w-full text-right rtl:text-right cursor-pointer"
+                    className="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-gray-100 w-full cursor-pointer"
                   >
-                    <LogOut className="w-4 h-4 ml-2 rtl:mr-2 rtl:ml-0" /> تسجيل الخروج
+                    <LogOut className="w-4 h-4 mr-2" /> Logout
                   </button>
                 </div>
               )}
@@ -166,7 +166,7 @@ const AuthNav = () => {
               className="md:hidden p-2 rounded-md focus:outline-none"
               aria-expanded={mobileMenuOpen}
             >
-              <span className="sr-only">افتح القائمة</span>
+              <span className="sr-only">Open menu</span>
               {mobileMenuOpen ? (
                 <X className={`h-6 w-6 ${scrolled ? 'text-gray-800' : 'text-white'}`} />
               ) : (
@@ -184,8 +184,8 @@ const AuthNav = () => {
             <div className="relative">
               <input
                 type="text"
-                placeholder="ابحث عن مقالات، كتّاب، مواضيع..."
-                className="w-full px-4 py-3 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                placeholder="Search for articles, authors, topics..."
+                className="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               />
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
             </div>
@@ -202,21 +202,21 @@ const AuthNav = () => {
               className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-50"
               onClick={() => setMobileMenuOpen(false)}
             >
-              الرئيسية
+              Home
             </Link>
             <Link
               href="/stories"
               className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-50"
               onClick={() => setMobileMenuOpen(false)}
             >
-              المقالات
+              Articles
             </Link>
             <Link
               href="/authors"
               className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-50"
               onClick={() => setMobileMenuOpen(false)}
             >
-              الكتّاب
+              Authors
             </Link>
           </div>
         </div>
