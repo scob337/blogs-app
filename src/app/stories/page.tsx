@@ -44,7 +44,7 @@ export default function StoriesPage() {
         setFilteredPosts(data);
       } catch (error) {
         console.error('Error fetching posts:', error);
-        toast.error('حدث خطأ أثناء جلب المقالات');
+        toast.error('An error occurred while fetching articles');
       } finally {
         setIsLoading(false);
       }
@@ -53,13 +53,13 @@ export default function StoriesPage() {
     fetchUserPosts();
   }, [user]);
   
-  // تصفية المقالات بناءً على مصطلح البحث والترتيب
+  // Filter articles based on search term and sorting
   useEffect(() => {
     if (!posts.length) return;
     
     let result = [...posts];
     
-    // تطبيق البحث
+    // Apply search filter
     if (searchTerm) {
       result = result.filter(post => 
         post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -67,7 +67,7 @@ export default function StoriesPage() {
       );
     }
     
-    // تطبيق الترتيب
+    // Apply sorting
     if (sortBy === 'newest') {
       result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     } else if (sortBy === 'oldest') {
@@ -122,7 +122,7 @@ export default function StoriesPage() {
       <Toaster position="bottom-right" />
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-          <h1 className="text-3xl font-bold text-gray-900 text-right md:text-right w-full md:w-auto">My Articles</h1>
+          <h1 className="text-3xl font-bold text-gray-900 w-full md:w-auto">My Articles</h1>
           <Link href="/auth/articles/create" className="w-full md:w-auto">
             <button className="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg flex items-center justify-center transition-colors duration-300 shadow-md hover:shadow-lg">
               <Pencil className="w-4 h-4 mr-2" />
@@ -137,10 +137,10 @@ export default function StoriesPage() {
             <div className="relative flex-grow">
               <input
                 type="text"
-                placeholder="ابحث في مقالاتك..."
+                placeholder="Search your articles..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               />
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
             </div>
@@ -151,9 +151,9 @@ export default function StoriesPage() {
                 onChange={(e) => setSortBy(e.target.value as 'newest' | 'oldest' | 'title')}
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white"
               >
-                <option value="newest">الأحدث</option>
-                <option value="oldest">الأقدم</option>
-                <option value="title">العنوان</option>
+                <option value="newest">Newest</option>
+                <option value="oldest">Oldest</option>
+                <option value="title">Title</option>
               </select>
               
               <div className="flex rounded-lg border border-gray-300 overflow-hidden">
@@ -189,13 +189,13 @@ export default function StoriesPage() {
           </div>
         ) : filteredPosts.length === 0 && searchTerm ? (
           <div className="bg-white rounded-xl shadow-md p-8 text-center">
-            <h2 className="text-xl font-medium text-gray-700 mb-4">لا توجد نتائج للبحث</h2>
-            <p className="text-gray-500 mb-6">لم نتمكن من العثور على أي مقالات تطابق بحثك. حاول استخدام كلمات مفتاحية مختلفة.</p>
+            <h2 className="text-xl font-medium text-gray-700 mb-4">No search results found</h2>
+            <p className="text-gray-500 mb-6">We couldn&apos;t find any articles matching your search. Try using different keywords.</p>
             <button 
               onClick={() => setSearchTerm('')}
               className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg transition-colors duration-300"
             >
-              عرض جميع المقالات
+              Show All Articles
             </button>
           </div>
         ) : posts.length === 0 ? (
@@ -229,57 +229,57 @@ export default function StoriesPage() {
                     </div>
                   ) : (
                     <div className="md:w-72 h-48 md:h-auto relative bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center">
-                      <span className="text-indigo-300 text-4xl font-light">مقال</span>
+                      <span className="text-indigo-300 text-4xl font-light">Article</span>
                     </div>
                   )}
                   <div className="flex-1 p-6">
                     <div className="flex flex-col md:flex-row justify-between items-start gap-4">
                       <div className="w-full">
-                        <h2 className="text-xl font-bold text-gray-900 mb-2 text-right">{post.title}</h2>
-                        <div className="flex items-center text-gray-500 mb-4 justify-end">
+                        <h2 className="text-xl font-bold text-gray-900 mb-2">{post.title}</h2>
+                        <div className="flex items-center text-gray-500 mb-4">
+                          <Calendar className="w-4 h-4 mr-2" />
                           <span className="text-gray-500 text-sm">
                             {new Date(post.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
                           </span>
-                          <Calendar className="w-4 h-4 mr-1 ml-2" />
                         </div>
                       </div>
-                      <div className="flex space-x-2 rtl:space-x-reverse">
+                      <div className="flex space-x-2">
                         <Link href={`/auth/articles/edit/${post.id}`}>
-                          <button className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-full transition-colors" aria-label="تعديل المقال">
+                          <button className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-full transition-colors" aria-label="Edit article">
                             <Edit2 size={18} />
                           </button>
                         </Link>
                         <button 
                           onClick={() => openDeleteModal(post.id)}
                           className="p-2 text-red-600 hover:bg-red-50 rounded-full transition-colors"
-                          aria-label="حذف المقال"
+                          aria-label="Delete article"
                         >
                           <Trash2 size={18} />
                         </button>
                       </div>
                     </div>
                     <div 
-                      className="text-gray-600 line-clamp-3 mb-4 text-right"
+                      className="text-gray-600 line-clamp-3 mb-4"
                       dangerouslySetInnerHTML={{ __html: post.content.substring(0, 200) + '...' }}
                     />
                     <div className="flex justify-between items-center">
-                      <div className="flex items-center space-x-4 rtl:space-x-reverse text-gray-500 text-sm">
+                      <div className="flex items-center space-x-4 text-gray-500 text-sm">
                         <div className="flex items-center">
-                          <Eye className="w-4 h-4 ml-1" />
+                          <Eye className="w-4 h-4 mr-1" />
                           <span>{Math.floor(Math.random() * 100) + 10}</span>
                         </div>
                         <div className="flex items-center">
-                          <Heart className="w-4 h-4 ml-1" />
+                          <Heart className="w-4 h-4 mr-1" />
                           <span>{Math.floor(Math.random() * 20)}</span>
                         </div>
                         <div className="flex items-center">
-                          <MessageSquare className="w-4 h-4 ml-1" />
+                          <MessageSquare className="w-4 h-4 mr-1" />
                           <span>{Math.floor(Math.random() * 10)}</span>
                         </div>
                       </div>
                       <Link href={`/auth/articles/${post.id}`}>
                         <button className="text-indigo-600 hover:text-indigo-700 text-sm font-medium transition-colors">
-                          عرض المقال
+                          View Article
                         </button>
                       </Link>
                     </div>
@@ -303,29 +303,29 @@ export default function StoriesPage() {
                   </div>
                 ) : (
                   <div className="h-48 relative bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center">
-                    <span className="text-indigo-300 text-4xl font-light">مقال</span>
+                    <span className="text-indigo-300 text-4xl font-light">Article</span>
                   </div>
                 )}
                 <div className="flex-1 p-5">
                   <div className="flex justify-between items-start mb-3">
-                    <div className="flex space-x-2 rtl:space-x-reverse">
+                    <div className="flex space-x-2">
                       <Link href={`/auth/articles/edit/${post.id}`}>
-                        <button className="p-1.5 text-indigo-600 hover:bg-indigo-50 rounded-full transition-colors" aria-label="تعديل المقال">
+                        <button className="p-1.5 text-indigo-600 hover:bg-indigo-50 rounded-full transition-colors" aria-label="Edit article">
                           <Edit2 size={16} />
                         </button>
                       </Link>
                       <button 
                         onClick={() => openDeleteModal(post.id)}
                         className="p-1.5 text-red-600 hover:bg-red-50 rounded-full transition-colors"
-                        aria-label="حذف المقال"
+                        aria-label="Delete article"
                       >
                         <Trash2 size={16} />
                       </button>
                     </div>
                     <div className="flex items-center text-gray-500 text-xs">
-                      <Calendar className="w-3 h-3 mr-1 ml-1" />
+                      <Calendar className="w-3 h-3 mr-1" />
                       <span>
-                        {new Date(post.createdAt).toLocaleDateString("ar-EG", {
+                        {new Date(post.createdAt).toLocaleDateString("en-US", {
                           year: "numeric",
                           month: "short",
                           day: "numeric"
@@ -333,27 +333,27 @@ export default function StoriesPage() {
                       </span>
                     </div>
                   </div>
-                  <h2 className="text-lg font-bold text-gray-900 mb-2 text-right line-clamp-2">{post.title}</h2>
+                  <h2 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2">{post.title}</h2>
                   <div 
-                    className="text-gray-600 text-sm line-clamp-3 mb-4 text-right"
+                    className="text-gray-600 text-sm line-clamp-3 mb-4"
                     dangerouslySetInnerHTML={{ __html: post.content.substring(0, 150) + '...' }}
                   />
                 </div>
                 <div className="p-5 pt-0 mt-auto border-t border-gray-100">
                   <div className="flex justify-between items-center">
-                    <div className="flex items-center space-x-3 rtl:space-x-reverse text-gray-500 text-xs">
+                    <div className="flex items-center space-x-3 text-gray-500 text-xs">
                       <div className="flex items-center">
-                        <Eye className="w-3 h-3 ml-1" />
+                        <Eye className="w-3 h-3 mr-1" />
                         <span>{Math.floor(Math.random() * 100) + 10}</span>
                       </div>
                       <div className="flex items-center">
-                        <Heart className="w-3 h-3 ml-1" />
+                        <Heart className="w-3 h-3 mr-1" />
                         <span>{Math.floor(Math.random() * 20)}</span>
                       </div>
                     </div>
                     <Link href={`/auth/articles/${post.id}`}>
                       <button className="text-indigo-600 hover:text-indigo-700 text-sm font-medium transition-colors">
-                        عرض المقال
+                        View Article
                       </button>
                     </Link>
                   </div>
@@ -368,20 +368,20 @@ export default function StoriesPage() {
       {showDeleteModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm">
           <div className="bg-white rounded-xl p-6 max-w-md w-full shadow-xl">
-            <h3 className="text-xl font-bold text-gray-900 mb-4 text-right">تأكيد الحذف</h3>
-            <p className="text-gray-600 mb-6 text-right">هل أنت متأكد من رغبتك في حذف هذا المقال؟ لا يمكن التراجع عن هذا الإجراء.</p>
-            <div className="flex justify-start space-x-3 rtl:space-x-reverse">
-              <button
-                onClick={handleDeletePost}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-300"
-              >
-                حذف
-              </button>
+            <h3 className="text-xl font-bold text-gray-900 mb-4">Confirm Delete</h3>
+            <p className="text-gray-600 mb-6">Are you sure you want to delete this article? This action cannot be undone.</p>
+            <div className="flex justify-end space-x-3">
               <button
                 onClick={() => setShowDeleteModal(false)}
                 className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-300"
               >
-                إلغاء
+                Cancel
+              </button>
+              <button
+                onClick={handleDeletePost}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-300"
+              >
+                Delete
               </button>
             </div>
           </div>
@@ -391,7 +391,7 @@ export default function StoriesPage() {
       {/* Empty State for Filtered Results */}
       {filteredPosts.length === 0 && posts.length > 0 && searchTerm && (
         <div className="fixed bottom-4 right-4 bg-white rounded-lg shadow-lg p-4 max-w-xs animate-slide-up">
-          <p className="text-gray-700 text-sm">لا توجد نتائج تطابق بحثك. جرب كلمات مفتاحية أخرى.</p>
+          <p className="text-gray-700 text-sm">No results match your search. Try different keywords.</p>
         </div>
       )}
     </div>
